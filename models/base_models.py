@@ -48,7 +48,7 @@ class BaseModel:
 
 class KNN(BaseModel):
 
-    def __init__(self, **params):
+    def __init__(self, params):
         super().__init__(params)
         
         self.model = KNeighborsRegressor(**params)
@@ -62,13 +62,13 @@ class KNN(BaseModel):
     @classmethod
     def define_trial_parameters(cls, trial, params):
     
-        params_tunable = {}
+        params_tunable = params
         params_out = {}
-        for i, val in params.items():
+        '''for i, val in params.items():
             if isinstance(val, list):
                 params_tunable[f'{i}'] = val
             else:
-                params_out[f'weights'] = val
+                params_out[f'weights'] = val'''
 
         if 'n_neighbors' in params_tunable:
             params_out[f'n_neighbors'] = trial.suggest_int("n_neighbors", params_tunable['n_neighbors'][0], params_tunable['n_neighbors'][1])
