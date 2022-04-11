@@ -28,7 +28,7 @@ class Objective(object):
         for train, test in kf.split(self.X):
             model.fit(self.X.iloc[train, :], self.y.iloc[train])
             score += mean_squared_error(self.y.iloc[test], model.predict(self.X.iloc[test, :]),
-                                        squared = params['squared_metrics'])
+                                        squared = self.params['squared_metrics'])
 
         score /= self.params['nfold']
 
@@ -50,4 +50,3 @@ def main(X, y, model_name, params, n_trials = 100):
     print("Best parameters:", study.best_trial.params)
 
     return study
-
