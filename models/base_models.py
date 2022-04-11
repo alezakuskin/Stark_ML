@@ -48,12 +48,12 @@ class BaseModel:
 
 class KNN(BaseModel):
 
-    def __init__(self, params):
+    def __init__(self, **params):
         super().__init__(params)
         
         self.model = KNeighborsRegressor(**params)
         
-        self.params = params
+        #self.params = params
         
     def fit(self, X, y, X_val=None, y_val=None):
         
