@@ -20,7 +20,7 @@ class Objective(object):
         score = 0
         # Cross validate the chosen hyperparameters
 
-        kf = KFold(self.params['nfold'], shuffle = True, random_state = 777)
+        kf = KFold(self.params['nfold'], shuffle = False)
         for train, test in kf.split(self.X):
             model = self.model_name(trial_params)
             model.fit(self.X.iloc[train, :], self.y.iloc[train])
