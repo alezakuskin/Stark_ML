@@ -83,6 +83,8 @@ class KNN(BaseModel):
         
         if 'nfold' in params_out:
             del params_out['nfold']
+        if 'squared_metrics' in params_out:
+            del params_out['squared_metrics']
         
         return params_out
 
