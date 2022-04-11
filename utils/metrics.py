@@ -1,7 +1,8 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
+from pytorch_tabnet.tab_model import  TabNetRegressor
+import numpy as np
+import pandas as pd
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import cross_val_score
 
 
 def bootstrap_metric(x, 
