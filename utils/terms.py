@@ -1,8 +1,4 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
+import pandas as pd
 
 def term_to_number(term):
   momentum = pd.Series()
