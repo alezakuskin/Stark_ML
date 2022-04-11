@@ -52,8 +52,9 @@ class KNN(BaseModel):
         super().__init__(params)
         
         self.model = KNeighborsRegressor(**params)
+        print(self.model)
         
-        #self.params = params
+        self.params = params
         
     def fit(self, X, y, X_val=None, y_val=None):
         
@@ -64,11 +65,11 @@ class KNN(BaseModel):
     
         params_tunable = params
         params_out = {}
-        '''for i, val in params.items():
+        for i, val in params.items():
             if isinstance(val, list):
                 params_tunable[f'{i}'] = val
             else:
-                params_out[f'weights'] = val'''
+                params_out[f'{i}'] = val
 
         if 'n_neighbors' in params_tunable:
             params_out[f'n_neighbors'] = trial.suggest_int("n_neighbors", params_tunable['n_neighbors'][0], params_tunable['n_neighbors'][1])
@@ -81,7 +82,6 @@ class KNN(BaseModel):
         if 'p' in params_tunable:
             params_out[f'p'] = trial.suggest_float('p', params_tunable['p'][0], params_tunable['p'][1])
         
-        print(params_out)
         return params_out
 
 
