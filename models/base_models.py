@@ -52,7 +52,6 @@ class KNN(BaseModel):
         super().__init__(params)
         
         self.model = KNeighborsRegressor(**params)
-        print(self.model)
         
         self.params = params
         
