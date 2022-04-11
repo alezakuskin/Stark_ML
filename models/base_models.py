@@ -66,14 +66,26 @@ class KNN(BaseModel):
 
     @classmethod
     def define_trial_parameters(cls, trial, params):
-        params = {
-            "n_neighbors": trial.suggest_int("n_neighbors", params['n_neighbors'][0], params['n_neighbors'][1]),
-            'weights' : trial.suggest_categorical('weights', params['weights']),
-            'algorithm' : trial.suggest_categorical('algorithm', params['algorithm']),
-            'leaf_size' : trial.suggest_int("leaf_size", params['leaf_size'][0], params['leaf_size'][1]),
-            'p' : trial.suggest_float('p', params['p'][0], params['p'][1])
-        }
-        return params
+		
+		params_tunable = {}
+		params_out = {}
+		for i, val in params.items():
+			if isinstance(val, list):
+				params_tunable[f'{i}'] = val
+			else params_out[f'i'] = val
+        
+		if 'n_neighbors' in params_tunable:
+			params_out[f'n_neighbors'] = trial.suggest_int("n_neighbors", params_tunable['n_neighbors'][0], params_tunable['n_neighbors'][1])
+		if 'weights' in params_tunable:
+			params_out[f'weights'] = trial.suggest_categorical('weights', params_tunable['weights'])
+		if 'algorithm' in params_tunable:
+			params_out[f'algorithm'] = trial.suggest_categorical('algorithm', params_tunable['algorithm'])
+		if 'leaf_size' in params_tunable:
+			params_out[f'leaf_size'] = trial.suggest_int("leaf_size", params_tunable['leaf_size'][0], params_tunable['leaf_size'][1])
+		if 'p' in params_tunable:
+			params_out[f'p'] = trial.suggest_float('p', params_tunable['p'][0], params_tunable['p'][1])
+		
+		return params_out
 
 
 class RandomForest(BaseModel):
