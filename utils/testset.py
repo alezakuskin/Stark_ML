@@ -1,8 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
 
 def test_selection(data, target, p = 0.2, low_limit = 'min', up_limit = 'max', random_state = None):
   if low_limit != 'min':
