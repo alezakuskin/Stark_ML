@@ -20,7 +20,7 @@ def bootstrap_metric(x,
         if not isinstance(x, np.ndarray):
           x_boot = x.to_numpy()[poses]
         else:
-          x_boot = x
+          x_boot = x[poses]
         y_boot = y[poses]
         
         m_val = metric_fn(x_boot, y_boot)
