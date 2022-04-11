@@ -17,15 +17,12 @@ class Objective(object):
         # Define hyperparameters to optimize
         trial_params = self.model_name.define_trial_parameters(trial, self.params)
         
-        # Create model
-        model = self.model_name(trial_params)
-
-        #model.fit(self.X, self.y)
         score = 0
         # Cross validate the chosen hyperparameters
 
         kf = KFold(self.params['nfold'], shuffle = True, random_state = 777)
         for train, test in kf.split(self.X):
+            model = self.model_name(trial_params)
             model.fit(self.X.iloc[train, :], self.y.iloc[train])
             score += mean_squared_error(self.y.iloc[test], model.predict(self.X.iloc[test, :]),
                                         squared = self.params['squared_metrics'])
