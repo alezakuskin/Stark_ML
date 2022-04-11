@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 def plot_model_comparison(results, figsize = (15, 8), y = 'mse'):
     fig, ax = plt.subplots(figsize = figsize)
