@@ -68,7 +68,8 @@ class KNN(BaseModel):
         for i, val in params.items():
             if isinstance(val, list):
                 params_tunable[f'{i}'] = val
-            else params_out[f'i'] = val
+            else:
+			    params_out[f'i'] = val
 
         if 'n_neighbors' in params_tunable:
             params_out[f'n_neighbors'] = trial.suggest_int("n_neighbors", params_tunable['n_neighbors'][0], params_tunable['n_neighbors'][1])
