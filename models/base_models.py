@@ -51,7 +51,7 @@ class KNN(BaseModel):
     def __init__(self, params):
         super().__init__(params)
         
-        self.model = KNeighborsRegressor(**params)
+        self.model = KNeighborsRegressor(**params,n_jobs = -1 )
         
         self.params = params
         
