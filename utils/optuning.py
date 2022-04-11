@@ -24,7 +24,7 @@ class Objective(object):
         score = 0
         # Cross validate the chosen hyperparameters
 
-        kf = KFold(self.params['nfold'], shuffle = True, seed = 777)
+        kf = KFold(self.params['nfold'], shuffle = True, random_state = 777)
         for train, test in kf.split(self.X):
             model.fit(self.X.iloc[train, :], self.y.iloc[train])
             score += mean_squared_error(self.y.iloc[test], model.predict(self.X.iloc[test, :]),
