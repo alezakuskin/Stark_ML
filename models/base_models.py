@@ -81,6 +81,8 @@ class KNN(BaseModel):
             params_out[f'leaf_size'] = trial.suggest_int("leaf_size", params_tunable['leaf_size'][0], params_tunable['leaf_size'][1])
         if 'p' in params_tunable:
             params_out[f'p'] = trial.suggest_float('p', params_tunable['p'][0], params_tunable['p'][1])
+        if 'nfold' in params_tunable:
+            del params_tunable['nfold']
         
         return params_out
 
