@@ -85,7 +85,7 @@ class KNN(BaseModel):
             del params_out['nfold']
         if 'squared_metrics' in params_out:
             del params_out['squared_metrics']
-        print(params_out)
+        
         return params_out
 
 
