@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
 import optuna
 from sklearn.model_selection import KFold
 from sklearn.metrics import mean_squared_error
@@ -22,6 +16,7 @@ class Objective(object):
     def __call__(self, trial):
         # Define hyperparameters to optimize
         trial_params = self.model_name.define_trial_parameters(trial, self.params)
+        print(trial_params)
 
         # Create model
         model = self.model_name(trial_params)
