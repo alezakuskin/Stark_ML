@@ -63,7 +63,7 @@ class KNN(BaseModel):
     @classmethod
     def define_trial_parameters(cls, trial, params):
     
-        params_tunable = params
+        params_tunable = {}
         params_out = {}
         for i, val in params.items():
             if isinstance(val, list):
