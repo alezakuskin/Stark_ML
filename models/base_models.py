@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
 import random
 
 from sklearn.neighbors import KNeighborsRegressor
@@ -11,10 +5,6 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 
 import xgboost
-
-
-# In[ ]:
-
 
 class BaseModel:
 
