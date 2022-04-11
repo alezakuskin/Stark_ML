@@ -16,8 +16,7 @@ class Objective(object):
     def __call__(self, trial):
         # Define hyperparameters to optimize
         trial_params = self.model_name.define_trial_parameters(trial, self.params)
-        print(trial_params)
-
+        
         # Create model
         model = self.model_name(trial_params)
 
