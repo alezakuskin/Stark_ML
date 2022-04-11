@@ -1,6 +1,5 @@
-import pandas as pd
-
 def term_to_number(term):
+  import pandas as pd
   momentum = pd.Series()
   for i, val in enumerate(term):
     if type(val) == type(0):
