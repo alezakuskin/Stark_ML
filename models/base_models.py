@@ -51,7 +51,7 @@ class KNN(BaseModel):
     def __init__(self, params):
         super().__init__(params)
         
-        self.model = KNeighborsRegressor(**params,n_jobs = -1 )
+        self.model = KNeighborsRegressor(**params, n_jobs = -1 )
         
         self.params = params
         
@@ -94,22 +94,34 @@ class RandomForest(BaseModel):
     def __init__(self, params):
         super().__init__(params)
 
-        self.model = RandomForestRegressor(n_estimators = params['n_estimators'],
-                                           max_depth = params['max_depth'],
-                                           min_samples_split = params['min_samples_split'],
-                                           min_samples_leaf = params['min_samples_leaf'],
-                                           n_jobs = -1)
-        
+        self.model = RandomForestRegressor(**params, n_jobs = -1)
+                                           
         self.params = params
 
     @classmethod
     def define_trial_parameters(cls, trial, params):
-        params = {
-            'n_estimators': trial.suggest_int('n_estimatoprs', params['n_estimators'][0], params['n_estimators'][1], log = True),
-            'max_depth': trial.suggest_int('max_depth', params['max_depth'][0], params['max_depth'][1], log = False),
-            'min_samples_split': trial.suggest_int('min_samples_split', params['min_samples_split'][0], params['min_samples_split'][1], log = False),
-            'min_samples_leaf': trial.suggest_int('min_samples_leaf', params['min_samples_leaf'][0], params['min_samples_leaf'][1], log = False)
-        }
+        params_tunable = {}
+        params_out = {}
+        for i, val in params.items():
+            if isinstance(val, list):
+                params_tunable[f'{i}'] = val
+            else:
+                params_out[f'{i}'] = val
+
+        if 'n_estimators' in params_tunable:
+            params_out[f'n_estimators'] = trial.suggest_int('n_estimatoprs', params['n_estimators'][0], params['n_estimators'][1], log = True)
+        if 'max_depth' in params_tunable:
+            params_out[f'max_depth'] = trial.suggest_int('max_depth', params['max_depth'][0], params['max_depth'][1], log = False)
+        if 'min_samples_split' in params_tunable:
+            params_out[f'min_samples_split'] = trial.suggest_int('min_samples_split', params['min_samples_split'][0], params['min_samples_split'][1], log = False)
+        if 'min_samples_leaf' in params_tunable:
+            params_out[f'min_samples_leaf'] = trial.suggest_int('min_samples_leaf', params['min_samples_leaf'][0], params['min_samples_leaf'][1], log = False)
+        
+        if 'nfold' in params_out:
+            del params_out['nfold']
+        if 'squared_metrics' in params_out:
+            del params_out['squared_metrics']
+        
         return params
 
 
