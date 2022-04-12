@@ -122,7 +122,7 @@ class RandomForest(BaseModel):
         if 'squared_metrics' in params_out:
             del params_out['squared_metrics']
         
-        return params
+        return params_out
 
 
 
