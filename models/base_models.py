@@ -116,6 +116,8 @@ class RandomForest(BaseModel):
             params_out[f'min_samples_split'] = trial.suggest_int('min_samples_split', params['min_samples_split'][0], params['min_samples_split'][1], log = False)
         if 'min_samples_leaf' in params_tunable:
             params_out[f'min_samples_leaf'] = trial.suggest_int('min_samples_leaf', params['min_samples_leaf'][0], params['min_samples_leaf'][1], log = False)
+        if 'criterion' in params_tunable:
+            params_out[f'criterion'] = trial.suggest_categorical('criterion', params['criterion'])
         
         if 'nfold' in params_out:
             del params_out['nfold']
