@@ -133,24 +133,41 @@ class Gradient_Boosting(BaseModel):
     def __init__(self, params):
         super().__init__(params)
 
-        self.model = GradientBoostingRegressor(
-            learning_rate = params['learning_rate'],
-            min_samples_split = params['min_samples_split'],
-            min_samples_leaf = params['min_samples_leaf'],
-            max_depth = params['max_depth']
-        )
+        self.model = GradientBoostingRegressor(**params)
 
         self.params = params
     
     @classmethod
     def define_trial_parameters(cls, trial, params):
-        params = {
-            'learning_rate' : trial.suggest_float('learning_rate', params['learning_rate'][0], params['learning_rate'][1]),
-            'min_samples_split': trial.suggest_int('min_samples_split', params['min_samples_split'][0], params['min_samples_split'][1], log = False),
-            'min_samples_leaf': trial.suggest_int('min_samples_leaf', params['min_samples_leaf'][0], params['min_samples_leaf'][1], log = False),
-            'max_depth': trial.suggest_int('max_depth', params['max_depth'][0], params['max_depth'][1], log = False)
-        }
-        return params
+        params_tunable = {}
+        params_out = {}
+        for i, val in params.items():
+            if isinstance(val, list):
+                params_tunable[f'{i}'] = val
+            else:
+                params_out[f'{i}'] = val
+        
+        if 'n_estimators' in params_tunable:
+            params_out[f'n_estimators'] = trial.suggest_int('n_estimatoprs', params['n_estimators'][0], params['n_estimators'][1], log = True)
+        if 'learning_rate' in params_tunable:
+            params_out[f'learning_rate'] = trial.suggest_int('learning_rate', params['learning_rate'][0], params['learning_rate'][1], log = False)
+        if 'loss' in params_tunable:
+            params_out[f'loss'] = trial.suggest_categorical('loss', params['loss'])
+        if 'max_depth' in params_tunable:
+            params_out[f'max_depth'] = trial.suggest_int('max_depth', params['max_depth'][0], params['max_depth'][1], log = False)
+        if 'max_features' in params_tunable:
+            params_out[f'max_features'] = trial.suggest_int('max_features', params['max_features'][0], params['max_features'][1], log = False)
+        if 'min_samples_split' in params_tunable:
+            params_out[f'min_samples_split'] = trial.suggest_int('min_samples_split', params['min_samples_split'][0], params['min_samples_split'][1], log = False)
+        if 'min_samples_leaf' in params_tunable:
+            params_out[f'min_samples_leaf'] = trial.suggest_int('min_samples_split', params['min_samples_split'][0], params['min_samples_split'][1], log = False)
+        
+        if 'nfold' in params_out:
+            del params_out['nfold']
+        if 'squared_metrics' in params_out:
+            del params_out['squared_metrics']
+        
+        return params_out
 
 
 class XGBoost(BaseModel):
