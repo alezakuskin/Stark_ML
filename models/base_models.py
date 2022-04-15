@@ -150,7 +150,7 @@ class Gradient_Boosting(BaseModel):
         if 'n_estimators' in params_tunable:
             params_out[f'n_estimators'] = trial.suggest_int('n_estimatoprs', params['n_estimators'][0], params['n_estimators'][1], log = True)
         if 'learning_rate' in params_tunable:
-            params_out[f'learning_rate'] = trial.suggest_int('learning_rate', params['learning_rate'][0], params['learning_rate'][1], log = False)
+            params_out[f'learning_rate'] = trial.suggest_float('learning_rate', params['learning_rate'][0], params['learning_rate'][1], log = False)
         if 'loss' in params_tunable:
             params_out[f'loss'] = trial.suggest_categorical('loss', params['loss'])
         if 'max_depth' in params_tunable:
