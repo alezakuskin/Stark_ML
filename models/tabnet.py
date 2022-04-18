@@ -158,14 +158,10 @@ class TabNet(BaseModelTorch):
         self.model = TabNetRegressor(**self.params)
         
     def fit(self, X, y, X_val=None, y_val=None):
-        if self.args.objective == "regression":
-            y, y_val = y.reshape(-1, 1), y_val.reshape(-1, 1)
+        y, y_val = y.reshape(-1, 1), y_val.reshape(-1, 1)
 
-        self.model.fit(X, y, eval_set=[(X_val, y_val)], eval_name=["eval"], eval_metric=self.metric,
-                       max_epochs=self.args.epochs, patience=self.args.early_stopping_rounds,
-                       batch_size=self.args.batch_size)
+        self.model.fit(X, y, eval_set=[(X_val, y_val)], eval_name=["eval"])
         history = self.model.history
-        self.save_model(filename_extension="best")
         return history['loss'], history["eval_" + self.metric[0]]
 
     def predict_helper(self, X):
