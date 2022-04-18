@@ -171,23 +171,34 @@ class Gradient_Boosting(BaseModel):
 
 
 class XGBoost(BaseModel):
-
+    
     def __init__(self, params):
         super().__init__(params)
-
-        self.model = xgboost.XGBRegressor(
-            learning_rate = params['learning_rate'],
-            min_child_weight = params['min_chils_weight'],
-            max_depth = params['max_depth']
-        )
-
-        self.params = params
-
+        
+        self.model = xgboost.XGBRegresor(**paramsб n_jobs = -1)
+    
     @classmethod
     def define_trial_parameters(cls, trial, params):
-        params = {
-            'min_child_weight': trial.suggest_int('min_child_weight', params['min_child_weight'][0], params['min_child_weight'][1], log = False),
-            'max_depth' : trial.suggest_int('max_depth', params['max_depth'][0], params['max_depth'][1], log = False),
-            'learning_rate' : trial.suggest_float('learning_rate', params['learning_rate'][0], params['learning_rate'][1])
-        }
-
+        params_tunable = {}
+        params_out = {}
+        for i, val in params.items():
+            if isinstance(val, list):
+                params_tunable[f'{i}'] = val
+            else:
+                params_out[f'{i}'] = val
+        
+        if 'n_estimators' in params_tunable:
+            params_out[f'n_estimators'] = trial.suggest_int('n_estimatoprs', params['n_estimators'][0], params['n_estimators'][1], log = True)
+        if 'max_depth' in params_tunable:
+            params_out[f'max_depth'] = trial.suggest_int('max_depth', params['max_depth'][0], params['max_depth'][1], log = False)
+        if 'max_leaves' in params_tunable:
+            params_out[f'max_leaves'] = trial.suggest_int('max_leaves', params['max_leaves'][0], params['max_leaves'][1], log = False)
+        if 'learning_rate' in params_tunable:
+            params_out[f'learning_rate'] = trial.suggest_float('learning_rate', params['learning_rate'][0], params['learning_rate'][1], log = False)
+        
+        if 'nfold' in params_out:
+            del params_out['nfold']
+        if 'squared_metrics' in params_out:
+            del params_out['squared_metrics']
+        
+        return params_out
