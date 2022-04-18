@@ -21,6 +21,14 @@ class BaseModelTorch(BaseModel):
 
         #print("On Device:", self.device)
         self.model.to(self.device)
+        
+    def get_device(self):
+        if torch.cuda.is_available():
+                device = "cuda"  # + ''.join(str(i) + ',' for i in self.args.gpu_ids)[:-1]
+        else:
+            device = 'cpu'
+
+        return torch.device(device)
 
     def fit(self, X, y, params, X_val=None, y_val=None):
         optimizer = optim.AdamW(self.model.parameters())
