@@ -136,8 +136,8 @@ class BaseModelTorch(BaseModel):
         
 class TabNet(BaseModelTorch):
 
-    def __init__(self, params, args):
-        super().__init__(params, args)
+    def __init__(self, params):
+        super().__init__(params)
 
         # Paper recommends to be n_d and n_a the same
         '''self.params["n_a"] = self.params["n_d"]
