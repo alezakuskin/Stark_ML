@@ -10,8 +10,8 @@ from Stark_ML.models.base_models import BaseModel
 
 class BaseModelTorch(BaseModel):
 
-    def __init__(self, params, args):
-        super().__init__(params, args)
+    def __init__(self, params):
+        super().__init__(params)
         self.device = self.get_device()
         #self.gpus = args.gpu_ids if args.use_gpu and torch.cuda.is_available() and args.data_parallel else None
 
