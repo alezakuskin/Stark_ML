@@ -163,7 +163,7 @@ class TabNet(BaseModelTorch):
         
         self.model.fit(X, y)
         history = self.model.history
-        return history['loss'], history["eval_" + self.metric[0]]
+        return history['loss']
 
     def predict_helper(self, X):
         X = np.array(X, dtype=np.float)
