@@ -169,6 +169,7 @@ class Gradient_Boosting(BaseModel):
         
         return params_out
 
+
 class XGBoost(BaseModel):
     
     def __init__(self, params):
@@ -196,6 +197,11 @@ class XGBoost(BaseModel):
             params_out[f'learning_rate'] = trial.suggest_float('learning_rate', params['learning_rate'][0], params['learning_rate'][1], log = False)
         if 'min_child_weight' in params_tunable:
             params_out[f'min_child_weight'] = trial.suggest_int('min_child_weight', params['min_child_weight'][0], params['min_child_weight'][1], log = False)
+        if 'reg_alpha' in params_tunable:
+            params_out[f'reg_alpha'] = trial.suggest_float('reg_alpha', params['reg_alpha'][0], params['reg_alpha'][1], log = True)
+        if 'reg_lambda' in params_tunable:
+            params_out[f'reg_lambda'] = trial.suggest_float('reg_lambda', params['reg_lambda'][0], params['reg_lambda'][1], log = False)
+        
         
         if 'nfold' in params_out:
             del params_out['nfold']
