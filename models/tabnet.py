@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
 
-from Stark_ML.models.basemodel import BaseModel
+from Stark_ML.models.base_models import BaseModel
 
 
 class BaseModelTorch(BaseModel):
