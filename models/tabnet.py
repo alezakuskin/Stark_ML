@@ -158,8 +158,9 @@ class TabNet(BaseModelTorch):
         self.model = TabNetRegressor(**self.params)
         
     def fit(self, X, y, X_val=None, y_val=None):
-        y, y_val = y.reshape(-1, 1), y_val.reshape(-1, 1)
-
+        X, X_val = X.to_numpy(), X_val.to_numpy()
+        y, y_val = y.to_numpy().reshape(-1, 1), y_val.to_numpy().reshape(-1, 1)
+        
         self.model.fit(X, y, eval_set=[(X_val, y_val)], eval_name=["eval"])
         history = self.model.history
         return history['loss'], history["eval_" + self.metric[0]]
