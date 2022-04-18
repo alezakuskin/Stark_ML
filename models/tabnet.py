@@ -20,7 +20,7 @@ class BaseModelTorch(BaseModel):
         #    self.model = nn.DataParallel(self.model, device_ids=self.args.gpu_ids)
 
         #print("On Device:", self.device)
-        #self.model.to(self.device)
+        self.model.to(self.device)
 
     def fit(self, X, y, params, X_val=None, y_val=None):
         optimizer = optim.AdamW(self.model.parameters())
