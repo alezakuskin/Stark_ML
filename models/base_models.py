@@ -174,7 +174,7 @@ class XGBoost(BaseModel):
     def __init__(self, params):
         super().__init__(params)
         
-        self.model = xgboost.XGBRegresor(**paramsб n_jobs = -1)
+        self.model = xgboost.XGBRegresor(**params, n_jobs = -1)
     
     @classmethod
     def define_trial_parameters(cls, trial, params):
