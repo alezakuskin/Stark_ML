@@ -200,7 +200,7 @@ class XGBoost(BaseModel):
         if 'reg_alpha' in params_tunable:
             params_out[f'reg_alpha'] = trial.suggest_float('reg_alpha', params['reg_alpha'][0], params['reg_alpha'][1], log = True)
         if 'reg_lambda' in params_tunable:
-            params_out[f'reg_lambda'] = trial.suggest_float('reg_lambda', params['reg_lambda'][0], params['reg_lambda'][1], log = False)
+            params_out[f'reg_lambda'] = trial.suggest_float('reg_lambda', params['reg_lambda'][0], params['reg_lambda'][1], log = True)
         
         
         if 'nfold' in params_out:
