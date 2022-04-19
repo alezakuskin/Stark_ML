@@ -156,7 +156,7 @@ class TabNet(BaseModelTorch):
 
         self.params["device_name"] = self.device'''
 
-        self.model = TabNetRegressor(**self.params, verbose = False)
+        self.model = TabNetRegressor(**params, verbose = False, n_a = params['n_d'])
         
     def fit(self, X, y, X_val=None, y_val=None):
         X = X.to_numpy()
