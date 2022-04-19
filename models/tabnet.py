@@ -31,7 +31,7 @@ class BaseModelTorch(BaseModel):
         return torch.device(device)
 
     def fit(self, X, y, params, X_val=None, y_val=None):
-        optimizer = optim.AdamW(self.model.parameters())
+        '''optimizer = optim.AdamW(self.model.parameters())
 
         X = torch.tensor(X).float()
         X_val = torch.tensor(X_val).float()
@@ -101,7 +101,7 @@ class BaseModelTorch(BaseModel):
                 break
 
         # Load best model
-        self.load_model(filename_extension="best", directory="tmp")
+        self.load_model(filename_extension="best", directory="tmp")'''
         return loss_history, val_loss_history
 
     def predict(self, X):
@@ -161,7 +161,7 @@ class TabNet(BaseModelTorch):
         X = X.to_numpy()
         y = y.to_numpy().reshape(-1, 1)
         
-        self.model.fit(X, y)
+        self.model.fit(X, y, eval_set = [(X_val, y_val)], eval_name = ['eval'])
         history = self.model.history
         return history['loss']
 
