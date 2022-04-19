@@ -157,6 +157,8 @@ class TabNet(BaseModelTorch):
         self.params["device_name"] = self.device'''
 
         self.model = TabNetRegressor(**params, verbose = False)
+        if torch.cuda.is_available():
+            self.model.to('cuda')
         
     def fit(self, X, y, X_val=None, y_val=None):
         X = X.to_numpy()
