@@ -22,9 +22,12 @@ class Objective(object):
 
         kf = KFold(self.params['nfold'], shuffle = False)
         for train, test in kf.split(self.X):
+            X_train, y_train = self.X.iloc[train, :], self.y.iloc[train]
+            X_val, y_val = self.X.iloc[test, :], self.y.iloc[test]
+            
             model = self.model_name(trial_params)
-            model.fit(self.X.iloc[train, :], self.y.iloc[train])
-            score += mean_squared_error(self.y.iloc[test], model.predict(self.X.iloc[test, :]),
+            model.fit(X_train, y_train, X_val, y_val)
+            score += mean_squared_error(y_val, model.predict(X_val),
                                         squared = self.params['squared_metrics'])
 
         score /= self.params['nfold']
