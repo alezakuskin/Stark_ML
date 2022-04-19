@@ -161,6 +161,9 @@ class TabNet(BaseModelTorch):
         X = X.to_numpy()
         y = y.to_numpy().reshape(-1, 1)
         
+        if X_val:
+            X_val, y_val = X_val.to_numpy(), y_val.to_numpy().reshape(-1, 1)
+            
         self.model.fit(X, y, eval_set = [(X_val, y_val)], eval_name = ['eval'])
         history = self.model.history
         return history['loss']
