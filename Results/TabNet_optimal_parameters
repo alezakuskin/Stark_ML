@@ -1,0 +1,1 @@
+{"n_d": 6, "n_steps": 1, "gamma": 1.1101875512034627, "n_independent": 3, "n_shared": 6, "momentum": 0.05687614226389681, "mask_type": "sparsemax"}
