@@ -28,7 +28,7 @@ def bootstrap_metric(x,
             
     return b_metric
 
-def train_and_test_regressor(models, X_train, y_train, X_test, y_test, max_epochs = 1000, patience = 50):
+def train_and_test_regressor(models, X_train, y_train, X_test, y_test, max_epochs = 200, patience = 20):
   X_train_save, y_train_save = X_train, y_train
   X_test_save, y_test_save = X_test, y_test
   predictions = {}
@@ -44,6 +44,8 @@ def train_and_test_regressor(models, X_train, y_train, X_test, y_test, max_epoch
     if isinstance(model, TabNetRegressor):
       model.fit(X_train, y_train,
                 max_epochs = max_epochs,
+                eval_set = [(X_test, y_test)],
+                eval_name = ['eval'],
                 patience = patience
                 )
     else:
