@@ -32,77 +32,6 @@ class BaseModelTorch(BaseModel):
         return torch.device(device)
 
     def fit(self, X, y, params, X_val=None, y_val=None):
-        '''optimizer = optim.AdamW(self.model.parameters())
-
-        X = torch.tensor(X).float()
-        X_val = torch.tensor(X_val).float()
-
-        y = torch.tensor(y)
-        y_val = torch.tensor(y_val)
-
-        loss_func = nn.MSELoss()
-        y = y.float()
-        y_val = y_val.float()
-        
-        train_dataset = TensorDataset(X, y)
-        train_loader = DataLoader(dataset=train_dataset, batch_size = params['batch_size'], shuffle=True,
-                                  num_workers=4)
-
-        val_dataset = TensorDataset(X_val, y_val)
-        val_loader = DataLoader(dataset=val_dataset, batch_size=params['batch_size'], shuffle=True)
-
-        min_val_loss = float("inf")
-        min_val_loss_idx = 0
-
-        loss_history = []
-        val_loss_history = []
-
-        for epoch in range(params['epochs']):
-            for i, (batch_X, batch_y) in enumerate(train_loader):
-
-                out = self.model(batch_X.to(self.device))
-
-                if self.args.objective == "regression":
-                    out = out.squeeze()
-
-                loss = loss_func(out, batch_y.to(self.device))
-                loss_history.append(loss.item())
-
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-
-            # Early Stopping
-            val_loss = 0.0
-            val_dim = 0
-            for val_i, (batch_val_X, batch_val_y) in enumerate(val_loader):
-                out = self.model(batch_val_X.to(self.device))
-
-                if self.args.objective == "regression":
-                    out = out.squeeze()
-
-                val_loss += loss_func(out, batch_val_y.to(self.device))
-                val_dim += 1
-
-            val_loss /= val_dim
-            val_loss_history.append(val_loss.item())
-
-            print("Epoch %d, Val Loss: %.5f" % (epoch, val_loss))
-
-            if val_loss < min_val_loss:
-                min_val_loss = val_loss
-                min_val_loss_idx = epoch
-
-                # Save the currently best model
-                self.save_model(filename_extension="best", directory="tmp")
-
-            if min_val_loss_idx + params['early_stopping_rounds'] < epoch:
-                print("Validation loss has not improved for %d steps!" % params['early_stopping_rounds'])
-                print("Early stopping applies.")
-                break
-
-        # Load best model
-        self.load_model(filename_extension="best", directory="tmp")'''
         return loss_history, val_loss_history
 
     def predict(self, X):
@@ -156,9 +85,7 @@ class TabNet(BaseModelTorch):
 
         self.params["device_name"] = self.device'''
 
-        self.model = TabNetRegressor(**params, verbose = False)
-        if torch.cuda.is_available():
-            self.model.to('cuda')
+        self.model = TabNetRegressor(**params, n_a = params['n_d'], verbose = False)
         
     def fit(self, X, y, X_val=None, y_val=None):
         X = X.to_numpy()

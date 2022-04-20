@@ -85,6 +85,8 @@ class KNN(BaseModel):
             del params_out['nfold']
         if 'squared_metrics' in params_out:
             del params_out['squared_metrics']
+        if 'device_name' in params_out:
+            del params_out['device_name']
         
         return params_out
 
@@ -123,6 +125,8 @@ class RandomForest(BaseModel):
             del params_out['nfold']
         if 'squared_metrics' in params_out:
             del params_out['squared_metrics']
+        if 'device_name' in params_out:
+            del params_out['device_name']
         
         return params_out
 
@@ -166,6 +170,8 @@ class Gradient_Boosting(BaseModel):
             del params_out['nfold']
         if 'squared_metrics' in params_out:
             del params_out['squared_metrics']
+        if 'device_name' in params_out:
+            del params_out['device_name']
         
         return params_out
 
@@ -207,5 +213,7 @@ class XGBoost(BaseModel):
             del params_out['nfold']
         if 'squared_metrics' in params_out:
             del params_out['squared_metrics']
+        if 'device_name' in params_out:
+            del params_out['device_name']
         
         return params_out
