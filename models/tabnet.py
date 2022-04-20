@@ -135,6 +135,8 @@ class TabNet(BaseModelTorch):
             del params_out['nfold']
         if 'squared_metrics' in params_out:
             del params_out['squared_metrics']
+        if 'n_jobs' in params_out:
+            del params_out['n_jobs']
         
         return params_out
         
