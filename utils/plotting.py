@@ -13,15 +13,19 @@ def get_model_params(models, path = '/content/Stark_ML/Results'):
     
     return params
     
-def create_models_dict(models, params):
+def create_models_dict(models, params = None):
     if not isinstance(models, list):
         raise TypeError(f"'models' parameter must be 'list', not {type(models)}")
+    if params == None:
+        params = get_model_params(models)
     if not isinstance(params, dict):
         raise TypeError(f"'params' parameter must be 'dict', not {type(params)}")
         
     models_dict = {}
     
     for model in models:
+        if f'{model}' not is params:
+            params['f{model}'] = get_model_params([f'{model}'])['f{model}']
         models_dict[f'{model}'] = name_to_model(model)(params[f'model'])
         
     return models_dict
