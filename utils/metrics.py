@@ -4,6 +4,8 @@ import pandas as pd
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import cross_val_score
 
+from Stark_ML.models.tabnet import TabNet
+
 
 def bootstrap_metric(x, 
                      y,
