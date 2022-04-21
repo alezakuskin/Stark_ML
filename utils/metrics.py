@@ -35,6 +35,7 @@ def train_and_test_regressor(models, X_train, y_train, X_test, y_test, max_epoch
   X_test_save, y_test_save = X_test, y_test
   predictions = {}
   for name, model in models.items():
+  print(type(model))
     if isinstance(model, TabNetRegressor):
       X_train, X_test = X_train_save.to_numpy(), X_test_save.to_numpy()
       y_train, y_test = y_train_save.to_numpy().reshape(-1, 1), y_test_save.to_numpy().reshape(-1, 1)
