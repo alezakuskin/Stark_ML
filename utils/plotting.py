@@ -9,7 +9,7 @@ def get_model_params(models, path = '/content/Stark_ML/Results'):
     params = {}
     for model in models:
         with open(path + f'/{model}' + '_optimal_parameters', 'r') as fp:
-            params[f'{i}'] = json.load(fp)
+            params[f'{model}'] = json.load(fp)
     
     return params
     
