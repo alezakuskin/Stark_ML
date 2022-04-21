@@ -43,13 +43,7 @@ def train_and_test_regressor(models, X_train, y_train, X_test, y_test, max_epoch
       y_train, y_test = y_train_save, y_test_save
    
     print(f"Fitting {name}")
-    if name == 'TabNet':
-      model.fit(X_train, y_train,
-                X_val = X_test, 
-                y_val = y_test,
-                )
-    else:
-      model.fit(X_train, y_train)
+    model.fit(X_train, y_train, X_test, y_test)
     y_pred = model.predict(X_test)
     predictions[name] = y_pred
       
