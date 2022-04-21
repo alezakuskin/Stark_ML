@@ -45,10 +45,8 @@ def train_and_test_regressor(models, X_train, y_train, X_test, y_test, max_epoch
     print(f"Fitting {name}")
     if name == 'TabNet':
       model.fit(X_train, y_train,
-                max_epochs = max_epochs,
-                eval_set = [(X_test, y_test)],
-                eval_name = ['eval'],
-                patience = patience
+                X_val = X_test, 
+                y_val = y_test,
                 )
     else:
       model.fit(X_train, y_train)
