@@ -43,6 +43,7 @@ def train_and_test_regressor(models, X_train, y_train, X_test, y_test, max_epoch
       y_train, y_test = y_train_save, y_test_save
    
     print(f"Fitting {name}")
+    print(isinstance(model, TabNet))
     if isinstance(model, TabNet):
       model.fit(X_train, y_train,
                 max_epochs = max_epochs,
