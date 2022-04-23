@@ -34,7 +34,7 @@ def train_and_test_regressor(models, X_train, y_train, X_test, y_test, max_epoch
   predictions = {}
   for name, model in models.items():
     print(f"Fitting {name}")
-    if name == 'TabNet':
+    if 'TabNet' in name:
         model.fit(X_train, y_train, X_test, y_test)
     else:
         model.fit(X_train, y_train)
