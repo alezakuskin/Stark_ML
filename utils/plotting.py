@@ -15,7 +15,7 @@ def name_to_model(model):
         from Stark_ML.models.base_models import XGBoost
         return XGBoost
         
-    elif "GB" in modes:
+    elif "GB" in model:
         from Stark_ML.models.base_models import Gradient_Boosting
         return Gradient_Boosting
     
