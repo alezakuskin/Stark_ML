@@ -3,23 +3,23 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 def name_to_model(model):
-    if model == "KNN":
+    if "KNN" in model:
         from Stark_ML.models.base_models import KNN
         return KNN
         
-    elif model == "RF":
+    elif "RF" in model:
         from Stark_ML.models.base_models import RandomForest
         return RandomForest
         
-    elif model == "XGB":
+    elif "XGB" in model:
         from Stark_ML.models.base_models import XGBoost
         return XGBoost
         
-    elif model == "GB":
+    elif "GB" in modes:
         from Stark_ML.models.base_models import Gradient_Boosting
         return Gradient_Boosting
     
-    elif model == "TabNet":
+    elif "TabNet" in model:
         from Stark_ML.models.tabnet import TabNet
         return TabNet
         
