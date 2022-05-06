@@ -73,7 +73,7 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
     '''
     if X_elem is None and y_elem is None:
         grid_h = 1
-    elif X_elem not None and y_elem not None:
+    elif X_elem is not None and y_elem is not None:
         grid_h = 2
     else:
         raise ValueError(f"'X_elem' and 'y_elem' must be both either 'None' or not.")
