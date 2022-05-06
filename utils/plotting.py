@@ -105,7 +105,7 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
             ax[i].plot(y_test, predictions[name], 'r.')
             ax[i].plot([0, np.amax(y_test)], [0, np.amax(y_test)], color = 'b', ls = '--')
             ax[i].set_title(f'{name}')
-            ax[i].text(x = 0, y = 0, s = f'$R^2$ = {R2[name]:.4f}')
+            ax[i].text(x = 0, y = 1, s = f'$R^2$ = {R2[name]:.4f}')
         else:
             ax[0, i].plot(y_test, predictions[name], 'r.')
             ax[0, i].plot([0, np.amax(y_test)], [0, np.amax(y_test)], color = 'b', ls = '--')
