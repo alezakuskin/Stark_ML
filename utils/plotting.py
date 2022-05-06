@@ -94,7 +94,7 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
         
         if grid_h == 2:
             y_pred = model.predict(X_elem)
-            predictions_elem[name] = y_pred
+            predictions_elem[name] = y_pred.flatten()
             print(f"Model {name} results' type is {type(y_pred)}")
             R2_elem[name] = r2_score(y_elem, y_pred)
         
@@ -115,7 +115,7 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
             ax[0, i].text(x = 0, y = 1, s = f'$R^2$ = {R2[name]:.4f}', transform = ax[0, i].transAxes)
             
             #ax[1, i].plot(y_elem, predictions_elem[name], 'r.')
-            sns.scatterplot(y_elem, predictions_elem[name], ax = ax[1, i])
+            sns.scatterplot(y_elem, predictions_elem[name], ax = ax[1, i], style = label_elem['Element'])
             ax[1, i].plot([0, np.amax(y_elem)], [0, np.amax(y_elem)], color = 'b', ls = '--')
             ax[1, i].text(x = 0, y = 1, s = f'$R^2$ = {R2_elem[name]:.4f}',  transform = ax[1, i].transAxes)
         i += 1
