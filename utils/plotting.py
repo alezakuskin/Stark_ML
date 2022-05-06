@@ -98,7 +98,6 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
         if grid_h == 2:
             y_pred = model.predict(X_elem)
             predictions_elem[name] = y_pred.flatten()
-            print(f"Model {name} results' type is {type(y_pred)}")
             R2_elem[name] = r2_score(y_elem, y_pred)
             RMSE_elem[name] = mean_squared_error(y_elem, y_elem, squared = False)
         
@@ -111,7 +110,7 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
             ax[i].plot(y_test, predictions[name], 'r.')
             ax[i].plot([0, np.amax(y_test)], [0, np.amax(y_test)], color = 'b', ls = '--')
             ax[i].set_title(f'{name}')
-            ax[i].text(x = 0, y = 1, s = f'$R^2$ = {R2[name]:.4f}    RMSE = {RMSE[name]:.2f}', transform = ax[i].transAxes)
+            ax[i].text(x = 0, y = 1, s = f'$R^2$ = {R2[name]:.4f}    RMSE = {RMSE[name]:.4f}', transform = ax[i].transAxes)
         else:
             ax[0, i].plot(y_test, predictions[name], 'r.')
             ax[0, i].plot([0, np.amax(y_test)], [0, np.amax(y_test)], color = 'b', ls = '--')
@@ -121,7 +120,7 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
             #ax[1, i].plot(y_elem, predictions_elem[name], 'r.')
             sns.scatterplot(y_elem, predictions_elem[name], ax = ax[1, i], style = label_elem['Element'], hue = label_elem['Element'])
             ax[1, i].plot([0, np.amax(y_elem)], [0, np.amax(y_elem)], color = 'b', ls = '--')
-            ax[1, i].text(x = 0, y = 1, s = f'$R^2$ = {R2_elem[name]:.4f}    RMSE = {RMSE_elem[name]:.2f}',  transform = ax[1, i].transAxes)
+            ax[1, i].text(x = 0, y = 1, s = f'$R^2$ = {R2_elem[name]:.4f}    RMSE = {RMSE_elem[name]:.4f}',  transform = ax[1, i].transAxes)
         i += 1
     plt.show()
 
