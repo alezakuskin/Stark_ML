@@ -1,6 +1,8 @@
 import json
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.metrics import r2_score
 
 def name_to_model(model):
     if "KNN" in model:
@@ -63,3 +65,54 @@ def plot_model_comparison(results, figsize = (15, 8), y = 'mse'):
     ax.set_ylabel("MSE", size=20)
     ax.set_title("Estimators vs MSE", size=30)
     plt.show()
+    
+    
+def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = None, y_elem = None):
+    '''
+    Takes models (dict) and data as input, returns predictions and plots
+    '''
+    if X_elem is None and y_elem is None:
+        grid_h = 1
+    elif X_elem not None and y_elem not None:
+        grid_h = 2
+    else:
+        raise ValueError(f"'X_elem' and 'y_elem' must be both either 'None' or not.")
+        
+    predictions = {}
+    predictions_elem = {}
+    for name, model in models.items():
+        print(f"Getting {name} predictions")
+        if 'TabNet' in name:
+            model.fit(X_train, y_train, X_test, y_test)
+        else:
+            model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        predictions[name] = y_pred
+        R2 = r2_score(y_test, y_pred)
+        
+        y_pred = model.predict(X_elem)
+        predictions_elem[name] = y_pred
+        R2_elem = r2_score(y_elem, y_pred)
+        
+        
+    i = 0
+    fig, ax = plt.subplots(grid_h, len(models), figsize = (20, 4*grid_h))
+    for name, model in models.items():
+        if grid_h == 1:
+            ax[i].plot(YW_test, predictions[name], 'r.')
+            ax[i].plot([0, np.amax(Y_test)], [0, np.amax(Y_test)], color = 'b', lx = '--')
+            ax[i].set_title(f'{name}')
+            ax[i].text(x = 0, y = 0, s = f'%R^2% = {R2[name]}')
+        else:
+            ax[0, i].plot(YW_test, predictions[name], 'r.')
+            ax[0, i].plot([0, np.amax(Y_test)], [0, np.amax(Y_test)], color = 'b', lx = '--')
+            ax[0, i].set_title(f'{name}')
+            ax[0, i].text(x = 0, y = 0, s = f'%R^2% = {R2[name]}')
+            
+            ax[1, i].plot(YW_test, predictions_elem[name], 'r.')
+            ax[1, i].plot([0, np.amax(Y_elem)], [0, np.amax(Y_elem)], color = 'b', lx = '--')
+            ax[1, i].text(x = 0, y = 0, s = f'%R^2% = {R2_elem[name]}')
+        i += 1
+    plt.show()
+
+    return predictions, predictions_elem, fig, ax
