@@ -67,7 +67,7 @@ def plot_model_comparison(results, figsize = (15, 8), y = 'mse'):
     plt.show()
     
     
-def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = None, y_elem = None):
+def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = None, y_elem = None, label_elem = None):
     '''
     Takes models (dict) and data as input, returns predictions and plots
     '''
@@ -112,7 +112,8 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
             ax[0, i].set_title(f'{name}')
             ax[0, i].text(x = 0, y = 1, s = f'$R^2$ = {R2[name]:.4f}', transform = ax[0, i].transAxes)
             
-            ax[1, i].plot(y_elem, predictions_elem[name], 'r.')
+            #ax[1, i].plot(y_elem, predictions_elem[name], 'r.')
+            sns.scatterplot(y_elem, predictions_elem[name], style = label_elem['Element'], ax = ax[1, i)
             ax[1, i].plot([0, np.amax(y_elem)], [0, np.amax(y_elem)], color = 'b', ls = '--')
             ax[1, i].text(x = 0, y = 1, s = f'$R^2$ = {R2_elem[name]:.4f}',  transform = ax[1, i].transAxes)
         i += 1
