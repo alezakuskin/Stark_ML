@@ -95,7 +95,7 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
         if grid_h == 2:
             y_pred = model.predict(X_elem)
             predictions_elem[name] = y_pred
-            print(f"Model {name} results' shape is {y_pred.shape}")
+            print(f"Model {name} results' type is {type(y_pred)}")
             R2_elem[name] = r2_score(y_elem, y_pred)
         
         
