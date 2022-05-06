@@ -101,6 +101,7 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
     i = 0
     fig, ax = plt.subplots(grid_h, len(models), figsize = (5*len(models), 4*grid_h))
     for name, model in models.items():
+        print(f'Plotting {name} predictions')
         if grid_h == 1:
             ax[i].plot(y_test, predictions[name], 'r.')
             ax[i].plot([0, np.amax(y_test)], [0, np.amax(y_test)], color = 'b', ls = '--')
