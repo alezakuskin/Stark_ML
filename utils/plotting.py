@@ -122,4 +122,4 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
         i += 1
     plt.show()
 
-    #return predictions, predictions_elem, fig, ax
+    return predictions, predictions_elem, fig, ax
