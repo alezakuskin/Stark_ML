@@ -90,9 +90,10 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
         predictions[name] = y_pred
         R2 = r2_score(y_test, y_pred)
         
-        y_pred = model.predict(X_elem)
-        predictions_elem[name] = y_pred
-        R2_elem = r2_score(y_elem, y_pred)
+        if grid_h == 2:
+            y_pred = model.predict(X_elem)
+            predictions_elem[name] = y_pred
+            R2_elem = r2_score(y_elem, y_pred)
         
         
     i = 0
