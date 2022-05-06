@@ -99,7 +99,7 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
             y_pred = model.predict(X_elem)
             predictions_elem[name] = y_pred.flatten()
             R2_elem[name] = r2_score(y_elem, y_pred)
-            RMSE_elem[name] = mean_squared_error(y_elem, y_elem, squared = False)
+            RMSE_elem[name] = mean_squared_error(y_elem, y_pred, squared = False)
         
         
     i = 0
@@ -115,7 +115,7 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
             ax[0, i].plot(y_test, predictions[name], 'r.')
             ax[0, i].plot([0, np.amax(y_test)], [0, np.amax(y_test)], color = 'b', ls = '--')
             ax[0, i].set_title(f'{name}')
-            ax[0, i].text(x = 0, y = 1, s = f'$R^2$ = {R2[name]:.4f}', transform = ax[0, i].transAxes)
+            ax[0, i].text(x = 0, y = 1, s = f'$R^2$ = {R2[name]:.4f}    RMSE = {RMSE[name]:.4f}', transform = ax[0, i].transAxes)
             
             #ax[1, i].plot(y_elem, predictions_elem[name], 'r.')
             sns.scatterplot(y_elem, predictions_elem[name], ax = ax[1, i], style = label_elem['Element'], hue = label_elem['Element'])
