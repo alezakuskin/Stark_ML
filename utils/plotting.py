@@ -99,18 +99,18 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
         
         
     i = 0
-    fig, ax = plt.subplots(grid_h, len(models), figsize = (20, 4*grid_h))
+    fig, ax = plt.subplots(grid_h, len(models), figsize = (5*len(models), 4*grid_h))
     for name, model in models.items():
         if grid_h == 1:
             ax[i].plot(y_test, predictions[name], 'r.')
             ax[i].plot([0, np.amax(y_test)], [0, np.amax(y_test)], color = 'b', ls = '--')
             ax[i].set_title(f'{name}')
-            ax[i].text(x = 0, y = 1, s = f'$R^2$ = {R2[name]:.4f}')
+            ax[i].text(x = 0, y = 1, s = f'$R^2$ = {R2[name]:.4f}', transform = ax[i].transAxes)
         else:
             ax[0, i].plot(y_test, predictions[name], 'r.')
             ax[0, i].plot([0, np.amax(y_test)], [0, np.amax(y_test)], color = 'b', ls = '--')
             ax[0, i].set_title(f'{name}')
-            ax[0, i].text(x = 0, y = 0, s = f'%R^2% = {R2[name]}')
+            ax[0, i].text(x = 0, y = 0, s = f'%R^2% = {R2[name]}', transform = ax[0, i].transAxes)
             
             ax[1, i].plot(y_elem, predictions_elem[name], 'r.')
             ax[1, i].plot([0, np.amax(y_elem)], [0, np.amax(y_elem)], color = 'b', ls = '--')
