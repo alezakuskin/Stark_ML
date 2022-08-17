@@ -93,6 +93,7 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
         y_pred = model.predict(X_test)
         predictions[name] = y_pred
         R2[name] = r2_score(y_test, y_pred)
+        RMSE[name] = mean_squared_error(y_test, y_pred, squared = False)
         
         if grid_h == 2:
             y_pred = model.predict(X_elem)
