@@ -82,6 +82,7 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
     predictions_elem = {}
     R2 = {}
     R2_elem = {}
+    RMSE = {}
     RMSE_elem = {}
     for name, model in models.items():
         print(f"Getting {name} predictions")
