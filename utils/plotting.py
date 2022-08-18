@@ -120,7 +120,7 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
             #ax[1, i].plot(y_elem, predictions_elem[name], 'r.')
             sns.scatterplot(y_elem, predictions_elem[name], ax = ax[1, i], style = label_elem['Element'], hue = label_elem['Element'])
             ax[1, i].plot([0, np.amax(y_elem)], [0, np.amax(y_elem)], color = 'b', ls = '--')
-            ax[1, i].text(x = 0, y = 1, s = f'$R^2$ = {R2_elem[name]:.4f}    RMSE = {RMSE_elem[name]:.4f}',  transform = ax[1, i].transAxes)
+            ax[1, i].text(x = 0, y = 1.01, s = f'$R^2$ = {R2_elem[name]:.4f}    RMSE = {RMSE_elem[name]:.4f}',  transform = ax[1, i].transAxes)
         i += 1
     plt.show()
 
