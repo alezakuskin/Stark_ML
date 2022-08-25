@@ -233,7 +233,7 @@ class CatBoost(BaseModel):
     def __init__(self, params):
         super().__init__(params)
         
-        self.model = cat.CatBoostRegressor(**params)
+        self.model = cat.CatBoostRegressor(**params, verbose = False)
     
     @classmethod
     def define_trial_parameters(cls, trial, params):
