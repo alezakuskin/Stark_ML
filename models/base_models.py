@@ -233,7 +233,7 @@ class CatBoost(BaseModel):
     def __init__(self, params):
         super().__init__(params)
         
-        self.model = cat.CatBoostRegressor(**params, task_type = 'GPU')
+        self.model = cat.CatBoostRegressor(**params)
     
     @classmethod
     def define_trial_parameters(cls, trial, params):
