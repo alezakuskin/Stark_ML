@@ -5,6 +5,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingRegressor
 
 import xgboost
+import catboost as cat
 
 class BaseModel:
 
@@ -213,6 +214,44 @@ class XGBoost(BaseModel):
             params_out[f'reg_alpha'] = trial.suggest_float('reg_alpha', params['reg_alpha'][0], params['reg_alpha'][1], log = True)
         if 'reg_lambda' in params_tunable:
             params_out[f'reg_lambda'] = trial.suggest_float('reg_lambda', params['reg_lambda'][0], params['reg_lambda'][1], log = True)
+        
+        
+        if 'nfold' in params_out:
+            del params_out['nfold']
+        if 'squared_metrics' in params_out:
+            del params_out['squared_metrics']
+        if 'device_name' in params_out:
+            del params_out['device_name']
+        if 'n_jobs' in params_out:
+            del params_out['n_jobs']
+        
+        return params_out
+        
+        
+class CatBoost(BaseModel):
+    
+    def __init__(self, params):
+        super().__init__(params)
+        
+        self.model = cat.CatBoostRegressor(**params, task_type = 'GPU')
+    
+    @classmethod
+    def define_trial_parameters(cls, trial, params):
+        params_tunable = {}
+        params_out = {}
+        for i, val in params.items():
+            if isinstance(val, list):
+                params_tunable[f'{i}'] = val
+            else:
+                params_out[f'{i}'] = val
+        
+        if 'learning_rate' in params_tunable:
+            params_out[f'learning_rate'] = trial.suggest_float('learning_rate', params['learning_rate'][0], params['learning_rate'][1], log = True)
+        if 'max_depth' in params_tunable:
+            params_out[f'max_depth'] = trial.suggest_int('max_depth', params['max_depth'][0], params['max_depth'][1], log = False)
+        if 'l2_leaf_reg' in params_tunable:
+            params_out[f'l2_leaf_reg'] = trial.suggest_float('l2_leaf_reg', params['l2_leaf_reg'][0], params['l2_leaf_reg'][1], log = True)
+        
         
         
         if 'nfold' in params_out:
