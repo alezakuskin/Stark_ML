@@ -6,6 +6,7 @@ from sklearn.ensemble import GradientBoostingRegressor
 
 import xgboost
 import catboost as cat
+import lightgbm as lgb
 
 class BaseModel:
 
@@ -268,3 +269,42 @@ class CatBoost(BaseModel):
     def fit(self, X, y, X_val=None, y_val=None):
         
         return super().fit(X, y, X_val, y_val)
+        
+class LightGBM(BaseModel):
+    
+    def __init__(self, params):
+        super().__init__(params)
+        
+        self.model = lgb.LGBMRegressor(**params, n_jobs = -1, silent = True)
+    
+    @classmethod
+    def define_trial_parameters(cls, trial, params):
+        params_tunable = {}
+        params_out = {}
+        for i, val in params.items():
+            if isinstance(val, list):
+                params_tunable[f'{i}'] = val
+            else:
+                params_out[f'{i}'] = val
+        
+        if 'learning_rate' in params_tunable:
+            params_out[f'learning_rate'] = trial.suggest_float('learning_rate', params['learning_rate'][0], params['learning_rate'][1], log = True)
+        if 'num_leaves' in params_tunable:
+            params_out[f'num_leaves'] = trial.suggest_int('num_leaves', params['num_leaves'][0], params['num_leaves'][1], log = False)
+        if 'reg_alpha' in params_tunable:
+            params_out[f'reg_alpha'] = trial.suggest_float('reg_alpha', params['reg_alpha'][0], params['reg_alpha'][1], log = True)
+        if 'reg_lambda' in params_tunable:
+            params_out[f'reg_lambda'] = trial.suggest_float('reg_lambda', params['reg_lambda'][0], params['reg_lambda'][1], log = True)
+
+        
+        
+        if 'nfold' in params_out:
+            del params_out['nfold']
+        if 'squared_metrics' in params_out:
+            del params_out['squared_metrics']
+        if 'device_name' in params_out:
+            del params_out['device_name']
+        if 'n_jobs' in params_out:
+            del params_out['n_jobs']
+        
+        return params_out
