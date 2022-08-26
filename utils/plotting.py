@@ -16,7 +16,11 @@ def name_to_model(model):
     elif "XGB" in model:
         from Stark_ML.models.base_models import XGBoost
         return XGBoost
-        
+    
+    elif "LightGBM" in model:
+        from Stark_ML.models.base_models import LightGBM
+        return LightGBM    
+    
     elif "GB" in model:
         from Stark_ML.models.base_models import Gradient_Boosting
         return Gradient_Boosting
