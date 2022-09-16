@@ -16,6 +16,8 @@ def term_to_number(term):
       momentum.at[i] = 4
     elif val == 'H':
       momentum.at[i] = 5
+    elif val == 'I':
+      momentum.at[i] = 6
     else:
       raise NameError(f'Term symbol "{val}" is not specified')
   return momentum
