@@ -41,8 +41,8 @@ class BaseModel:
         Private functions
     '''
 
-    def save_model(self, filename_extension=""):
-        print('lll')
+    def save_model(self, filename="model.json"):
+        self.model.save_model(filename)
 
     def save_predictions(self, y_true, filename_extension=""):
        print('kkk')
