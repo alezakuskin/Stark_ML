@@ -1,4 +1,4 @@
-# StarkML: Machile Learning-based Tool for Predicting Stark Parameters of Atomic Emission Lines
+# StarkML: Machine Learning-based Tool for Predicting Stark Parameters of Atomic Emission Lines
 
 ## Description
 
