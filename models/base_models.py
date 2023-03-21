@@ -6,7 +6,13 @@ from sklearn.ensemble import GradientBoostingRegressor
 
 import xgboost
 import catboost as cat
-import lightgbm as lgb
+try:
+    import lightgbm as lgb
+except:
+    print('You are probably working on Mac, so you cannot import LightGBM right now')
+    print('Open Terminal in your Jupyter environment, execute the following commands and then rerun this cell.')
+    print('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"')
+    print('brew install lightgbm')
 
 class BaseModel:
 
