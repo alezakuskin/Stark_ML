@@ -32,7 +32,7 @@ class Objective(object):
                                         squared = self.params['squared_metrics'])
 
         score /= self.params['nfold']
-
+        model = None
         #Sklearn cross_val_score doesn't work because it need sklearn model
         '''score = -cross_val_score(estimator = model,
                                 X = self.X, y = self.y,
