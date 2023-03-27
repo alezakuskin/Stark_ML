@@ -1,7 +1,9 @@
+import os
 import json
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import Stark_ML
 from sklearn.metrics import r2_score, mean_squared_error
 
 def name_to_model(model):
@@ -33,7 +35,7 @@ def name_to_model(model):
         raise NotImplementedError(f'Model {model} has not been implemented yet')
         
         
-def get_model_params(models, path = '/content/Stark_ML/Results'):
+def get_model_params(models, path = os.path.join(Stark_ML.__path__.__dict__['_path'][0], 'Results')):
     if not isinstance(models, list):
         raise TypeError(f"'models' parameter must be 'list', not {type(models)}")
     
