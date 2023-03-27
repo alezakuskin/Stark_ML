@@ -30,7 +30,7 @@ def bootstrap_metric(x,
             
     return b_metric
 
-def train_and_test_regressor(models, X_train, y_train, X_test, y_test, max_epochs = 200, patience = 20):
+def train_and_test_regressor(models, X_train, y_train, X_test, y_test, max_epochs = 200, patience = 20, train = True):
   predictions = {}
   for name, model in models.items():
     print(f"Fitting {name}")
