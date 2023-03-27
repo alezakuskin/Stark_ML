@@ -288,7 +288,7 @@ class LightGBM(BaseModel):
         
     def fit(self, X, y):
         
-        return super().fit(X, y, verbose = False)
+        return super().fit(X, y, verbose = 0)
     
     
     @classmethod
