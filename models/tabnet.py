@@ -94,7 +94,9 @@ class TabNet(BaseModelTorch):
         if isinstance(X_val, pd.DataFrame):
             X_val, y_val = X_val.to_numpy(), y_val.to_numpy().reshape(-1, 1)
             
-        self.model.fit(X, y, eval_set = [(X_val, y_val)], eval_name = ['eval'], max_epochs = 500, patience = 20)
+        self.model.fit(X, y, eval_set = [(X_val, y_val)],
+                       eval_name = ['eval'], max_epochs = 500, patience = 20,
+                       batch_size = min([X.shape[0], 1024]), virtual_batch_size = min([X.shape[0], 1024]) // 8)
         history = self.model.history
         return history['loss']
 
