@@ -33,11 +33,12 @@ def bootstrap_metric(x,
 def train_and_test_regressor(models, X_train, y_train, X_test, y_test, max_epochs = 200, patience = 20, train = True):
   predictions = {}
   for name, model in models.items():
-    print(f"Fitting {name}")
-    if 'TabNet' in name:
-        model.fit(X_train, y_train, X_test, y_test)
-    else:
-        model.fit(X_train, y_train)
+    if train == True:
+        print(f"Fitting {name}")
+        if 'TabNet' in name:
+            model.fit(X_train, y_train, X_test, y_test)
+        else:
+            model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
     predictions[name] = y_pred
       
