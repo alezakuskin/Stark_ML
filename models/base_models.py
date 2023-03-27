@@ -31,6 +31,9 @@ class BaseModel:
     def predict(self, X):
         self.predictions = self.model.predict(X)
         return self.predictions
+        
+    def get_params(self):
+        return self.model.get_params()
 
     def save_model_and_predictions(self, y_true, filename_extension=""):
         self.save_predictions(y_true, filename_extension)
