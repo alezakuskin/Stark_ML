@@ -285,6 +285,11 @@ class LightGBM(BaseModel):
         super().__init__(params)
         
         self.model = lgb.LGBMRegressor(**params, n_jobs = -1, verbose = 0)
+        
+    def fit(self, X, y):
+        
+        return super().fit(X, y, verbose = False)
+    
     
     @classmethod
     def define_trial_parameters(cls, trial, params):
