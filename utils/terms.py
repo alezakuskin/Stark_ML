@@ -1,4 +1,5 @@
 import Stark_ML
+import pandas as pd
 
 def term_to_number(term):
   import pandas as pd
