@@ -1,4 +1,5 @@
 import Stark_ML
+import pandas as pd
 
 def term_to_number(term):
   import pandas as pd
@@ -27,8 +28,8 @@ def term_to_number(term):
 
 
 def gap_to_ion(data, column_name = None, file = Stark_ML.__path__.__dict__['_path'][0] + '/Source_files/E_ion.csv'):
-    #import pandas
-    ion_Es = pandas.read_csv(file)
+    import pandas as pd
+    ion_Es = pd.read_csv(file)
     gap = pd.Series()
     for index, val in enumerate(data['Gap to ion']):
         gap.at[index] = float(ion_Es.loc[ion_Es['Element'] == data.loc[index]['Element']][str(data.loc[index]['Charge'])]) - data.loc[index][column_name]
