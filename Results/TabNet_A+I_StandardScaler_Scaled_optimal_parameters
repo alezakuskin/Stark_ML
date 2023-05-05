@@ -1,0 +1,1 @@
+{'n_d': 6, 'n_steps': 1, 'gamma': 1.499552549856968, 'n_independent': 11, 'n_shared': 2, 'momentum': 0.3118582147590293, 'mask_type': 'entmax'}
