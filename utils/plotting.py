@@ -73,7 +73,7 @@ def plot_model_comparison(results, figsize = (15, 8), y = 'mse'):
     plt.show()
     
     
-def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = None, y_elem = None, label_elem = None):
+def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = None, y_elem = None, label_elem = None, scaler = None):
     '''
     Takes models (dict) and data as input, returns predictions and plots
     '''
@@ -92,11 +92,22 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
     RMSE_elem = {}
     for name, model in models.items():
         print(f"Getting {name} predictions")
-        if 'TabNet' in name:
-            model.fit(X_train, y_train, X_test, y_test)
+        if 'StandardScaler' in name:
+            if scaler == None:
+                print(f'Model {name} requires StandardScaler object, but none was given')
+                continue
+            
+            if 'TabNet' in name:
+                model.fit(scaler.transform(X_train), y_train, scaler.transform(X_test), y_test)
+            else:
+                model.fit(scaler.transform(X_train), y_train)
+            y_pred = model.predict(scaler.transform(X_test))
         else:
-            model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
+            if 'TabNet' in name:
+                model.fit(X_train, y_train, X_test, y_test)
+            else:
+                model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
         predictions[name] = y_pred
         R2[name] = r2_score(y_test, y_pred)
         RMSE[name] = mean_squared_error(y_test, y_pred, squared = False)
