@@ -1,0 +1,1 @@
+{"device_name": "cuda", "n_d": 9, "n_steps": 8, "gamma": 1.363548993580014, "n_independent": 4, "n_shared": 9, "momentum": 0.003101588683319847, "mask_type": "entmax"}
