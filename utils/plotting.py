@@ -1,6 +1,7 @@
 import os
 import json
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import Stark_ML
@@ -98,10 +99,10 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
                 continue
             
             if 'TabNet' in name:
-                model.fit(scaler.transform(X_train), y_train, scaler.transform(X_test), y_test)
+                model.fit(pd.DataFrame(scaler.transform(X_train)), y_train, pd.DataFrame(scaler.transform(X_test)), y_test)
             else:
-                model.fit(scaler.transform(X_train), y_train)
-            y_pred = model.predict(scaler.transform(X_test))
+                model.fit(pd.DataFrame(scaler.transform(X_train)), y_train)
+            y_pred = model.predict(pd.DataFrame(scaler.transform(X_test)))
         else:
             if 'TabNet' in name:
                 model.fit(X_train, y_train, X_test, y_test)
@@ -113,7 +114,10 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
         RMSE[name] = mean_squared_error(y_test, y_pred, squared = False)
         
         if grid_h == 2:
-            y_pred = model.predict(X_elem)
+            if 'StandardScaler' in name:
+                y_pred = model.predict(pd.DataFrame(scaler.transform(X_elem)))
+            else:
+                y_pred = model.predict(X_elem)
             predictions_elem[name] = y_pred.flatten()
             R2_elem[name] = r2_score(y_elem, y_pred)
             RMSE_elem[name] = mean_squared_error(y_elem, y_pred, squared = False)
