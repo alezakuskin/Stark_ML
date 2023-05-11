@@ -30,18 +30,28 @@ def bootstrap_metric(x,
             
     return b_metric
 
-def train_and_test_regressor(models, X_train, y_train, X_test, y_test, max_epochs = 200, patience = 20, train = True):
+def train_and_test_regressor(models, X_train, y_train, X_test, y_test, max_epochs = 200, patience = 20, train = True, scaler = None, bootstrap = True):
   predictions = {}
   for name, model in models.items():
+    if 'StandardScaler' in name:
+        X = pd.DataFrame(scaler.transform(X_train.copy()))
+        X_t = pd.DataFrame(scaler.transform(X_test.copy()))
+    else:
+        X = X_train.copy()
+        X_t = X_test.copy()
+    
     if train == True:
         print(f"Fitting {name}")
         if 'TabNet' in name:
-            model.fit(X_train, y_train, X_test, y_test)
+            model.fit(X, y_train, X_t, y_test)
         else:
-            model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
+            model.fit(X, y_train)
+    y_pred = model.predict(X_t)
     predictions[name] = y_pred
       
+  if bootstrap == False:
+    return predictions
+  
   boot_scores = {}
 
   for name, y_pred in predictions.items():
