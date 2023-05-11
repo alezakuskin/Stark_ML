@@ -73,6 +73,8 @@ def plot_model_comparison(results, figsize = (15, 8), y = 'mse'):
     ax.set_title("Estimators vs RMSE", size=30)
     plt.show()
     
+    return fig
+    
     
 def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = None, y_elem = None, label_elem = None, scaler = None):
     '''
