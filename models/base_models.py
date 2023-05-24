@@ -200,6 +200,10 @@ class XGBoost(BaseModel):
         
         self.model = xgboost.XGBRegressor(**params, n_jobs = -1)
     
+    @property    
+    def feature_importances_(self):
+        return self.model.feature_importances_
+    
     @classmethod
     def define_trial_parameters(cls, trial, params):
         params_tunable = {}
