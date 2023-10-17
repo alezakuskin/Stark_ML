@@ -3,7 +3,7 @@ import pandas as pd
 
 def term_to_number(term):
   import pandas as pd
-  momentum = pd.Series()
+  momentum = pd.Series(dtype = 'float64')
   for i, val in enumerate(term):
     if type(val) == type(0):
       momentum.at[i] = val
