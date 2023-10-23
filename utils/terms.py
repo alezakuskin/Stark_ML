@@ -1,5 +1,6 @@
 import Stark_ML
 import pandas as pd
+from tqdm import tqdm
 
 def term_to_number(term):
   import pandas as pd
@@ -37,3 +38,203 @@ def gap_to_ion(data, column_name = None, file = Stark_ML.__path__.__dict__['_pat
         if np.isnan(gap.at[index]):
             print(f"Please find and insert to '/Source_files/E_ion.csv' ionization energy value for {data.loc[index]['Element']} with charge {data.loc[index]['Charge']}")
     return gap
+    
+
+def encode_term(term_str):
+    '''
+    Takes a single string from NIST output, returns list [Multiplicity, Term, Parity]
+    '''
+    if str(term_str) == 'nan':
+#        print(f'The term {term_str} is not in LS coupling')
+        return [np.nan, np.nan, np.nan]
+    if '[' in term_str or ']' in term_str or term_str == '*' or term_str.isnumeric():
+#        print(f'The term {term_str} is not in LS coupling')
+        return [np.nan, np.nan, np.nan]
+    if '(' in term_str and ')' in term_str:
+#        print(f'The term {term_str} is not in LS coupling')
+        return [np.nan, np.nan, np.nan]
+    if 'K' in term_str:
+#        print(f'K terms are currently not supported')
+        return [np.nan, np.nan, np.nan]
+    if str(term_str).endswith('e'):
+#        print(f'Term set equal to energy')
+        return [np.nan, np.nan, np.nan]
+    
+    #Parity
+    if term_str.endswith('*'):
+        parity = 0
+        term_str = term_str.replace('*', '')
+    else:
+        parity = 1
+        
+    #Cut irrelevant symbols
+    if ' ' in term_str:
+        term_str = term_str[1 + term_str.rfind(' '):]
+        
+    #Multiplicity and term 
+    if term_str[1].isnumeric():
+        multiplicity = int(term_str[:2])
+        term = term_to_number(term_str[2])[0]
+    else:
+        multiplicity = int(term_str[0])
+        term = term_to_number(term_str[1])[0]
+    return [multiplicity, term, parity]
+
+
+def encode_J(J_str):
+    if 'or' in str(J_str) or ',' in str(J_str):
+        return np.nan
+    if '?' in str(J_str):
+        J_str = J_str[:J_str.find('?')]
+    if '/' in str(J_str):
+        return float(J_str[:J_str.find('/')]) / float(J_str[1 + J_str.find('/'):])
+    else:
+        return float(J_str)
+    
+
+def single_shell(shell_str):
+    if shell_str[-1].isnumeric():
+        if shell_str[1].isnumeric():
+            key = shell_str[:3]
+        else:
+            key = shell_str[:2]
+        population = int(shell_str[len(key):])
+    else:
+        key = shell_str
+        population = 1
+        
+    return key, population
+
+
+def encode_configuration(conf_str):
+    if not isinstance(conf_str, str):
+        return {
+            '1s': np.nan
+        }
+    if conf_str.isnumeric():
+        return {
+            '1s': np.nan
+        }
+    
+    conf_str = conf_str.replace(' ', '.')
+    pop_dict = {}
+    shells = [shell for shell in conf_str.split('.') if '(' not in shell and ')' not in shell]
+    
+    for _, shell in enumerate(shells):
+        if '<' in shell and '>' in shell:
+            shells[_] = shell[:shell.find('<')]
+        if '?' in shell:
+            shells[_] = shell[:shell.find('?')]
+    
+    for key in max_population:
+        if key == single_shell(shells[0])[0]:
+            break
+        else:
+            pop_dict[key] = max_population[key]
+    
+    for shell in shells:
+        key, population = single_shell(shell)
+    
+        if key in pop_dict:
+            pop_dict[key] += population
+        else:
+            pop_dict[key] = population
+    
+    return pop_dict
+
+
+def encode_energy(energy_str):
+    if str(energy_str).startswith('[') and str(energy_str).endswith(']'):
+        return float(energy_str[1:-1])
+    if '(' in str(energy_str) and ')' in str(energy_str):
+        return float(energy_str[energy_str.find('(')+1 : energy_str.find(')')])
+    if '?' in str(energy_str):
+        energy_str = energy_str[:energy_str.find('?')]
+    if '+x' in str(energy_str):
+        return float(energy_str[:energy_str.find('+x')])
+    else:
+        try:
+            energy = float(energy_str)
+        except:
+            energy = np.nan
+        return energy
+    
+
+def NIST_to_StarkML(NIST_df, data_template):
+    '''
+    fefer
+    '''
+    req_df = pd.DataFrame(columns = data_template.columns)
+    if 'obs_wl_air(nm)' in list(NIST_df.columns):
+        wavel_key = 'air'
+    else:
+        wavel_key = 'vac'
+    for index, item in tqdm(NIST_df.iterrows()):
+        req_df.loc[index, 'Element'] = item['element']
+        req_df.loc[index, 'Wavelength'] = item[f'obs_wl_{wavel_key}(nm)']
+        if req_df.loc[[index], 'Wavelength'].isna()[index]:
+            req_df.loc[index, 'Wavelength'] = item[f'ritz_wl_{wavel_key}(nm)']
+        req_df.loc[index, 'Charge'] = int(item['sp_num'])-1
+        req_df.loc[index, 'E lower'] = encode_energy(item["Ei(cm-1)"])
+        req_df.loc[index, 'E upper'] = encode_energy(item["Ek(cm-1)"])
+
+        encode_up   = encode_term(item["term_k"])
+        encode_down = encode_term(item["term_i"])
+        req_df.loc[index, 'Multiplicity.1'] = encode_up[0]
+        req_df.loc[index, 'Multiplicity'] = encode_down[0]
+        req_df.loc[index, 'Term.1'] = encode_up[1]
+        req_df.loc[index, 'Term'] = encode_down[1]
+        req_df.loc[index, 'Parity.1'] = encode_up[2]
+        req_df.loc[index, 'Parity'] = encode_down[2]
+
+        req_df.loc[index, 'J'] = encode_J(item["J_i"])
+        req_df.loc[index, 'J.1'] = encode_J(item["J_k"])
+
+        encode_up   = encode_configuration(item['conf_k'])
+        encode_down = encode_configuration(item['conf_i'])
+        for key in encode_up:
+            if f'{key}.1' in req_df.columns:
+                req_df.loc[index, f'{key}.1'] = encode_up[key]
+            else:
+                req_df.loc[index, key] = encode_up[key]
+        for key in encode_down:
+            req_df.loc[index, key] = encode_down[key]
+
+        req_df.loc[index, 'Z number'] = sum([req_df.loc[index, req_df.columns[i]] for i in range(list(req_df.columns).index('Charge'),
+                                                                                                 list(req_df.columns).index('Multiplicity')) if str(req_df.loc[index, req_df.columns[i]]) != 'nan'])
+    return req_df
+
+
+def split_OK_check(StarkML_df, save_txts = True, save_manual_check = True):
+    StarkML_df = StarkML_df.drop(columns = [col for col in list(StarkML_df.columns)[1 +list(StarkML_df.columns).index('d (A)'):]])
+    need_manual_check = pd.DataFrame(columns = StarkML_df.columns)
+    leave_OK, need_manual_check = StarkML_df.groupby((StarkML_df['Multiplicity'].isna() == True) |
+                                                     (StarkML_df['Multiplicity.1'].isna() == True) |
+                                                     (StarkML_df['Term'].isna() == True) |
+                                                     (StarkML_df['Term.1'].isna() == True) |
+                                                     (StarkML_df['J'].isna() == True) |
+                                                     (StarkML_df['J.1'].isna() == True) |
+                                                     (StarkML_df['E lower'].isna() == True) |
+                                                     (StarkML_df['E upper'].isna() == True)
+                                       )
+    leave_OK = leave_OK[1].fillna(0).reset_index(drop = True)
+    need_manual_check = need_manual_check[1]
+    
+    for index, item in leave_OK.iterrows():
+        Z1 = sum([leave_OK.loc[index, leave_OK.columns[i]] for i in range(list(StarkML_df.columns).index('Charge'),
+                                                                          list(StarkML_df.columns).index('Multiplicity'))])
+        Z2 = sum([leave_OK.loc[index, leave_OK.columns[i]] for i in range(list(StarkML_df.columns).index('1s.1'),
+                                                                          list(StarkML_df.columns).index('Multiplicity.1'))]) + leave_OK.loc[index, 'Charge']
+        if Z1 != Z2:
+            need_manual_check = pd.concat([need_manual_check, leave_OK.loc[index].to_frame().T])
+            leave_OK = leave_OK.drop([index])
+    
+    if save_txts:
+        if save_manual_check:
+            need_manual_check.reset_index(drop = True).to_csv('for_manual_check.txt')
+            print(f'{need_manual_check.shape[0]} lines could not be encoded correctly. Please, check them manually in for_manual_check.txt')
+        leave_OK.reset_index(drop = True).to_csv('requested_lines.txt')
+    
+    print(f'{leave_OK.shape[0]} lines were encoded correctly.')
+        
+    return leave_OK
