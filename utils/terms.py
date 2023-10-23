@@ -170,7 +170,11 @@ def NIST_to_StarkML(NIST_df, data_template):
     else:
         wavel_key = 'vac'
     for index, item in tqdm(NIST_df.iterrows()):
-        req_df.loc[index, 'Element'] = item['element']
+        if 'element' in list(NIST_df.columns):
+            req_df.loc[index, 'Element'] = item['element']
+        else:
+            req_df.loc[index, 'Element'] = spectra[:spectra.find(' ')]
+        
         req_df.loc[index, 'Wavelength'] = item[f'obs_wl_{wavel_key}(nm)']
         if req_df.loc[[index], 'Wavelength'].isna()[index]:
             req_df.loc[index, 'Wavelength'] = item[f'ritz_wl_{wavel_key}(nm)']
