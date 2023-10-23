@@ -1,6 +1,8 @@
 import Stark_ML
 import pandas as pd
+import numpy as np
 from tqdm import tqdm
+import roman
 
 def term_to_number(term):
   import pandas as pd
@@ -72,12 +74,20 @@ def encode_term(term_str):
         term_str = term_str[1 + term_str.rfind(' '):]
         
     #Multiplicity and term 
-    if term_str[1].isnumeric():
+    if len(term_str) == 1:
+        multiplicity, term = np.nan, np.nan
+    elif term_str[1].isnumeric():
         multiplicity = int(term_str[:2])
-        term = term_to_number(term_str[2])[0]
+        try:
+            term = term_to_number(term_str[2])[0]
+        except:
+            term = np.nan
     else:
         multiplicity = int(term_str[0])
-        term = term_to_number(term_str[1])[0]
+        try:
+            term = term_to_number(term_str[1])[0]
+        except:
+            term = np.nan
     return [multiplicity, term, parity]
 
 
@@ -107,6 +117,36 @@ def single_shell(shell_str):
 
 
 def encode_configuration(conf_str):
+
+    max_population = {
+    '1s': 2,
+    '2s': 2,
+    '2p': 6,
+    '3s': 2,
+    '3p': 6,
+    '3d': 10,
+    '4s': 2,
+    '4p': 6,
+    '5s': 2,
+    '4d': 10,
+    '5p': 6,
+    '4f': 14,
+    '5d': 10,
+    '6s': 2,
+    '6p': 6,
+    '7s': 2,
+    '5f': 14,
+    '6d': 10,
+    '7p': 6,
+    '7d': 10,
+    '8s': 2,
+    '8p': 6,
+    '8d': 10,
+    '9s': 2,
+    '10s': 2,
+    '11s': 2
+    }
+    
     if not isinstance(conf_str, str):
         return {
             '1s': np.nan
@@ -118,7 +158,7 @@ def encode_configuration(conf_str):
     
     conf_str = conf_str.replace(' ', '.')
     pop_dict = {}
-    shells = [shell for shell in conf_str.split('.') if '(' not in shell and ')' not in shell]
+    shells = [shell for shell in conf_str.split('.') if '(' not in shell and ')' not in shell and len(shell) > 0]
     
     for _, shell in enumerate(shells):
         if '<' in shell and '>' in shell:
@@ -160,7 +200,7 @@ def encode_energy(energy_str):
         return energy
     
 
-def NIST_to_StarkML(NIST_df, data_template):
+def NIST_to_StarkML(NIST_df, data_template, spectra):
     '''
     fefer
     '''
@@ -178,7 +218,11 @@ def NIST_to_StarkML(NIST_df, data_template):
         req_df.loc[index, 'Wavelength'] = item[f'obs_wl_{wavel_key}(nm)']
         if req_df.loc[[index], 'Wavelength'].isna()[index]:
             req_df.loc[index, 'Wavelength'] = item[f'ritz_wl_{wavel_key}(nm)']
-        req_df.loc[index, 'Charge'] = int(item['sp_num'])-1
+        
+        if  'sp_num' in list(NIST_df.columns):
+            req_df.loc[index, 'Charge'] = int(item['sp_num'])-1
+        else:
+            req_df.loc[index, 'Charge'] = roman.fromRoman(spectra[spectra.find(' ') + 1:]) - 1
         req_df.loc[index, 'E lower'] = encode_energy(item["Ei(cm-1)"])
         req_df.loc[index, 'E upper'] = encode_energy(item["Ek(cm-1)"])
 
