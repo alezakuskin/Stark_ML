@@ -18,6 +18,36 @@
 
 ## Contents
 
-In the present repository you find everything needed to predict Stark broadening parameters for atomic lines of your interest. Currenly, predictions are made by an optimized XGBoost model.
+Description of files and folders present in the depository
 
-### Please, follow these simple steps to get predicted values:
+- `Example.xlsx`. Contains example of how to fill data on lines of your interest to get predictions on them.
+
+- `Predictions.ipynb`. Interactive notebook that allows to predict Stark parameters for lines of your interest.
+
+- `Main_body.ipynb`. Interactive notebook that reproduces all results published in MNRAS *link* paper.
+
+- `Figures.ipynb`. Interactive notebook that reproduces all visualizations present in paper *link* and supplementary materials to it.
+
+- `Results` folder. Stores optimal hyperparameters for each combination of model and dataset in form of Python `dict`. Name of each file (e.g. `XGB_Extended_optimal_parameters`) contains model's name `XGB` and an indication of the dataset variant it was trained on (`Scaled` for *scaled*, `Extended` for *augmented*, `SHIFT` for Stark shift prediction or no specific indication for the raw dataset). You can find full table of optimal hyperparameters in Supplementary materials *link* (Table S1).
+
+- `Source_files` folder. Contains full dataset used for training.
+
+- `models` and `utils` folters. Contain `.py` files with implementation of model classes, functions for gyperparameters tuning, plotting the results, conversion terms to quantum numbers, train-test split and evaluation of models; performance.
+
+## Citation
+
+*will be available later*
+
+If you use predictions by our models, please cite our work:
+```bib
+@article{zakuskin2023StarkML,
+ author={Zakuskin, Aleksandr and Labutin, Timur A.},
+  journal={...}, 
+  title={StarkML: application of machine learning to overcome lack of data on electron-impact broadening parameters}, 
+  year={2023},
+  volume={},
+  number={},
+  pages={},
+  doi={}
+}
+```
