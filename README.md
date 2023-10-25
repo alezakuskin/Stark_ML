@@ -10,7 +10,7 @@
 
 3. Follow instructions inside the notebook
 
-### Reproduce results published in MNRAS <link will be available later>
+### Reproduce results published in *PAPER* <link will be available later>
 
 1. Run `Main_body.ipynb` notebook either locally or in Google Colaboratory. Follow instructions and comments inside the notebook. You will be able to choose models of interest, vary their hyperpapameters and enable/disable target scaling and data augmentation.
 
@@ -24,7 +24,7 @@ Description of files and folders present in the depository
 
 - `Predictions.ipynb`. Interactive notebook that allows to predict Stark parameters for lines of your interest.
 
-- `Main_body.ipynb`. Interactive notebook that reproduces all results published in MNRAS *link* paper.
+- `Main_body.ipynb`. Interactive notebook that reproduces all results published in *link* paper.
 
 - `Figures.ipynb`. Interactive notebook that reproduces all visualizations present in paper *link* and supplementary materials to it.
 
