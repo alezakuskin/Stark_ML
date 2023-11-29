@@ -36,8 +36,6 @@ Description of files and folders present in the depository
 
 ## Citation
 
-*will be available later*
-
 If you use predictions by our models, please cite our work:
 ```bib
 @article{zakuskin2023StarkML,
