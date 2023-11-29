@@ -42,12 +42,12 @@ If you use predictions by our models, please cite our work:
 ```bib
 @article{zakuskin2023StarkML,
  author={Zakuskin, Aleksandr and Labutin, Timur A.},
-  journal={...}, 
+  journal={Monthly Notices of the Royal Astronomical Society}, 
   title={StarkML: application of machine learning to overcome lack of data on electron-impact broadening parameters}, 
-  year={2023},
-  volume={},
-  number={},
-  pages={},
-  doi={}
+  year={2024},
+  volume={527},
+  number={2},
+  pages={3139--3145},
+  doi={10.1093/mnras/stad3387}
 }
 ```
