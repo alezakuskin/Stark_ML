@@ -10,7 +10,7 @@
 
 3. Follow instructions inside the notebook
 
-### Reproduce results published in *PAPER* <link will be available later>
+### Reproduce results published in Zakuskin & Labutin, 2024, MNRAS, 527, 2
 
 1. Run `Main_body.ipynb` notebook either locally or in Google Colaboratory. Follow instructions and comments inside the notebook. You will be able to choose models of interest, vary their hyperpapameters and enable/disable target scaling and data augmentation.
 
