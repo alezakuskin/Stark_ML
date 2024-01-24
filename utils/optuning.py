@@ -45,7 +45,7 @@ class Objective(object):
 def main(X, y, model_name, params, n_trials = 100):
     print("Start hyperparameter optimization")
     
-    Sampler = optuna.samplers.TPESampler(seed = 777)
+    Sampler = optuna.samplers.TPESampler(seed = 777, n_startup_trials = n_trials // 5, multivariate = True)
     study = optuna.create_study(sampler = Sampler)
     study.optimize(Objective(model_name, X, y, params), n_trials, show_progress_bar = True, n_jobs = params['n_jobs'])
     print("Best parameters:", study.best_trial.params)
