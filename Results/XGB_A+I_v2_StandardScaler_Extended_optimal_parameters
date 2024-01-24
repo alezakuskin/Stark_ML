@@ -1,1 +1,1 @@
-{"n_estimators": 50, "max_depth": 12, "learning_rate": 0.19977036962322178, "min_child_weight": 15, "reg_alpha": 2.5245064830281564e-07, "reg_lambda": 6.738446549059396e-08}
+{"n_estimators": 988, "max_depth": 5, "learning_rate": 0.34402806441335404, "min_child_weight": 1, "reg_alpha": 1.3330721647019596e-07, "reg_lambda": 9.88098454162344}
