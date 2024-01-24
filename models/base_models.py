@@ -288,7 +288,7 @@ class LightGBM(BaseModel):
     def __init__(self, params):
         super().__init__(params)
         
-        self.model = lgb.LGBMRegressor(**params, n_jobs = -1, verbose = -1)
+        self.model = lgb.LGBMRegressor(**params, n_jobs = 1, verbose = -1)
     
     
     @classmethod
@@ -301,6 +301,8 @@ class LightGBM(BaseModel):
             else:
                 params_out[f'{i}'] = val
         
+        if 'n_estimators' in params_tunable:
+            params_out[f'n_estimators'] = trial.suggest_int('n_estimatoprs', params['n_estimators'][0], params['n_estimators'][1], log = True)
         if 'learning_rate' in params_tunable:
             params_out[f'learning_rate'] = trial.suggest_float('learning_rate', params['learning_rate'][0], params['learning_rate'][1], log = True)
         if 'num_leaves' in params_tunable:
