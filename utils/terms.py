@@ -29,7 +29,30 @@ def term_to_number(term):
     else:
       raise NameError(f'Term symbol "{val}" is not specified')
   return momentum
-
+  
+  
+def uncertainty_to_number(uncertainty_class):
+    uncertainty = pd.Series(dtype = 'float64')
+    for i, val in uncertainty_class.items():
+        if str(val).isnumeric():
+            uncertainty.at[i] = val
+        elif val == 'A':
+            uncertainty.at[i] = 15
+        elif val == 'B+':
+            uncertainty.at[i] = 23
+        elif val == 'B':
+            uncertainty.at[i] = 30
+        elif val == 'C+':
+            uncertainty.at[i] = 40
+        elif val == 'C':
+            uncertainty.at[i] = 50
+        elif val == 'D+':
+            uncertainty.at[i] = 75
+        elif val == 'D':
+            uncertainty.at[i] = 100
+        else:
+            raise NameError(f'Uncertainty symbol "{val}" is not specified')
+    return uncertainty
 
 
 def gap_to_ion(data, column_name = None, file = Stark_ML.__path__.__dict__['_path'][0] + '/Source_files/E_ion.csv'):
@@ -38,10 +61,18 @@ def gap_to_ion(data, column_name = None, file = Stark_ML.__path__.__dict__['_pat
     ion_Es = pd.read_csv(file)
     gap = pd.Series()
     for index, val in enumerate(data['Gap to ion']):
-        gap.at[index] = float(ion_Es.loc[ion_Es['Element'] == data.loc[index]['Element']][str(data.loc[index]['Charge'])]) - data.loc[index][column_name]
+        gap.at[index] = float((ion_Es.loc[ion_Es['Element'] == data.loc[index]['Element']][str(data.loc[index]['Charge'])]).iloc[0]) - data.loc[index][column_name]
         if np.isnan(gap.at[index]):
             print(f"Please find and insert to '/Source_files/E_ion.csv' ionization energy value for {data.loc[index]['Element']} with charge {data.loc[index]['Charge']}")
     return gap
+    
+    
+def energy_to_fraction(data, column_name = None, file = Stark_ML.__path__.__dict__['_path'][0] + '/Source_files/E_ion.csv'):
+    ion_Es = pd.read_csv(file)
+    E_fraction = pd.Series()
+    for index, val in data[f'{column_name}'].items():
+        E_fraction.at[index] = val / float((ion_Es.loc[ion_Es['Element'] == data.loc[index]['Element']][str(data.loc[index]['Charge'])]).iloc[0])
+    return E_fraction
     
 
 def encode_term(term_str):
