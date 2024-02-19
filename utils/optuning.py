@@ -7,7 +7,7 @@ class Objective(object):
     def __init__(self, model_name, X, y, params):
         self.model_name = model_name
 
-        # Save the trainings data
+        # Save the training data
         self.X = X
         self.y = y
         self.params = params
@@ -19,8 +19,8 @@ class Objective(object):
         print(trial_params)
         
         score = 0
-        # Cross validate the chosen hyperparameters
 
+        # Cross validate the chosen hyperparameters
         kf = KFold(self.params['nfold'], shuffle = False)
         for train, test in kf.split(self.X):
             X_train, y_train = self.X.iloc[train, :], self.y.iloc[train]
@@ -33,7 +33,7 @@ class Objective(object):
 
         score /= self.params['nfold']
         model = None
-        #Sklearn cross_val_score doesn't work because it need sklearn model
+        #Sklearn cross_val_score doesn't work because it needs sklearn model
         '''score = -cross_val_score(estimator = model,
                                 X = self.X, y = self.y,
                                 cv = params['nfold'],
