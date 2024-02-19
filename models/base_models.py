@@ -62,7 +62,7 @@ class KNN(BaseModel):
     def __init__(self, params):
         super().__init__(params)
         
-        self.model = KNeighborsRegressor(**params, n_jobs = -1 )
+        self.model = KNeighborsRegressor(**params)
         
         self.params = params
         
@@ -98,8 +98,8 @@ class KNN(BaseModel):
             del params_out['squared_metrics']
         if 'device_name' in params_out:
             del params_out['device_name']
-        if 'n_jobs' in params_out:
-            del params_out['n_jobs']
+        #if 'n_jobs' in params_out:
+        #    del params_out['n_jobs']
         
         return params_out
 
@@ -124,7 +124,7 @@ class RandomForest(BaseModel):
                 params_out[f'{i}'] = val
 
         if 'n_estimators' in params_tunable:
-            params_out[f'n_estimators'] = trial.suggest_int('n_estimatoprs', params['n_estimators'][0], params['n_estimators'][1], log = True)
+            params_out[f'n_estimators'] = trial.suggest_int('n_estimators', params['n_estimators'][0], params['n_estimators'][1], log = True)
         if 'max_depth' in params_tunable:
             params_out[f'max_depth'] = trial.suggest_int('max_depth', params['max_depth'][0], params['max_depth'][1], log = False)
         if 'min_samples_split' in params_tunable:
@@ -167,7 +167,7 @@ class Gradient_Boosting(BaseModel):
                 params_out[f'{i}'] = val
         
         if 'n_estimators' in params_tunable:
-            params_out[f'n_estimators'] = trial.suggest_int('n_estimatoprs', params['n_estimators'][0], params['n_estimators'][1], log = True)
+            params_out[f'n_estimators'] = trial.suggest_int('n_estimators', params['n_estimators'][0], params['n_estimators'][1], log = True)
         if 'learning_rate' in params_tunable:
             params_out[f'learning_rate'] = trial.suggest_float('learning_rate', params['learning_rate'][0], params['learning_rate'][1], log = False)
         if 'loss' in params_tunable:
@@ -215,7 +215,7 @@ class XGBoost(BaseModel):
                 params_out[f'{i}'] = val
         
         if 'n_estimators' in params_tunable:
-            params_out[f'n_estimators'] = trial.suggest_int('n_estimatoprs', params['n_estimators'][0], params['n_estimators'][1], log = True)
+            params_out[f'n_estimators'] = trial.suggest_int('n_estimators', params['n_estimators'][0], params['n_estimators'][1], log = True)
         if 'max_depth' in params_tunable:
             params_out[f'max_depth'] = trial.suggest_int('max_depth', params['max_depth'][0], params['max_depth'][1], log = False)
         if 'max_leaves' in params_tunable:
@@ -302,7 +302,7 @@ class LightGBM(BaseModel):
                 params_out[f'{i}'] = val
         
         if 'n_estimators' in params_tunable:
-            params_out[f'n_estimators'] = trial.suggest_int('n_estimatoprs', params['n_estimators'][0], params['n_estimators'][1], log = True)
+            params_out[f'n_estimators'] = trial.suggest_int('n_estimators', params['n_estimators'][0], params['n_estimators'][1], log = True)
         if 'learning_rate' in params_tunable:
             params_out[f'learning_rate'] = trial.suggest_float('learning_rate', params['learning_rate'][0], params['learning_rate'][1], log = True)
         if 'num_leaves' in params_tunable:
