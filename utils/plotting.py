@@ -47,11 +47,11 @@ def get_model_params(models, path = os.path.join(Stark_ML.__path__.__dict__['_pa
     
     return params
     
-def create_models_dict(models, params = None):
+def create_models_dict(models, params = None, path = os.path.join(Stark_ML.__path__.__dict__['_path'][0], 'Results')):
     if not isinstance(models, list):
         raise TypeError(f"'models' parameter must be 'list', not {type(models)}")
     if params == None:
-        params = get_model_params(models)
+        params = get_model_params(models, path)
     if not isinstance(params, dict):
         raise TypeError(f"'params' parameter must be 'dict', not {type(params)}")
         
@@ -59,7 +59,7 @@ def create_models_dict(models, params = None):
     
     for model in models:
         if f'{model}' not in params:
-            params['f{model}'] = get_model_params([f'{model}'])['f{model}']
+            params['f{model}'] = get_model_params([f'{model}'], path)['f{model}']
         models_dict[f'{model}'] = name_to_model(model)(params[f'{model}'])
         
     return models_dict
