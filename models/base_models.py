@@ -109,7 +109,7 @@ class RandomForest(BaseModel):
     def __init__(self, params):
         super().__init__(params)
 
-        self.model = RandomForestRegressor(**params)
+        self.model = RandomForestRegressor(**params, n_jobs = -1)
                                            
         self.params = params
 
@@ -198,7 +198,7 @@ class XGBoost(BaseModel):
     def __init__(self, params):
         super().__init__(params)
         
-        self.model = xgboost.XGBRegressor(**params, n_jobs = -1)
+        self.model = xgboost.XGBRegressor(**params, n_jobs = 2)
     
     @property    
     def feature_importances_(self):
