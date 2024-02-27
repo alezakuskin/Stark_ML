@@ -265,9 +265,13 @@ class CatBoost(BaseModel):
             params_out[f'max_depth'] = trial.suggest_int('max_depth', params['max_depth'][0], params['max_depth'][1], log = False)
         if 'l2_leaf_reg' in params_tunable:
             params_out[f'l2_leaf_reg'] = trial.suggest_float('l2_leaf_reg', params['l2_leaf_reg'][0], params['l2_leaf_reg'][1], log = True)
-        
-        
-        
+        if 'depth' in params_tunable:
+            params_out[f'depth'] = trial.suggest_int('depth', params['depth'][0], params['depth'][1], log = False)
+        if 'min_data_in_leaf' in params_tunable:
+            params_out[f'min_data_in_leaf'] = trial.suggest_int('min_data_in_leaf', params['min_data_in_leaf'][0], params['min_data_in_leaf'][1], log = False)
+        if 'random_strength' in params_tunable:
+            params_out[f'random_strength'] = trial.suggest_float('random_strength', params['random_strength'][0], params['random_strength'][1], log = False)
+            
         if 'nfold' in params_out:
             del params_out['nfold']
         if 'squared_metrics' in params_out:
