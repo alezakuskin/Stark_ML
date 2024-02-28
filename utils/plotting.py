@@ -31,7 +31,10 @@ def name_to_model(model):
     elif "TabNet" in model:
         from Stark_ML.models.tabnet import TabNet
         return TabNet
-        
+    
+    elif "CatBoost" in model:
+        from Stark_ML.models.base_models import CatBoost
+        return CatBoost   
     else:
         raise NotImplementedError(f'Model {model} has not been implemented yet')
         
