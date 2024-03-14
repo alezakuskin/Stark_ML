@@ -109,7 +109,7 @@ class RandomForest(BaseModel):
     def __init__(self, params):
         super().__init__(params)
 
-        self.model = RandomForestRegressor(**params, n_jobs = -1)
+        self.model = RandomForestRegressor(**params, n_jobs = 1)
                                            
         self.params = params
 
