@@ -79,7 +79,7 @@ def plot_model_comparison(results, figsize = (15, 8), y = 'mse'):
     return fig
     
     
-def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = None, y_elem = None, label_elem = None, scaler = None):
+def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = None, y_elem = None, label_elem = None, plot = True):
     '''
     Takes models (dict) and data as input, returns predictions and plots
     '''
@@ -96,58 +96,122 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
     R2_elem = {}
     RMSE = {}
     RMSE_elem = {}
+    MRE = {}
+    MRE_elem = {}
+    
     for name, model in models.items():
-        print(f"Getting {name} predictions")
-        if 'StandardScaler' in name:
-            if scaler == None:
-                print(f'Model {name} requires StandardScaler object, but none was given')
-                continue
-            
-            if 'TabNet' in name:
-                model.fit(pd.DataFrame(scaler.transform(X_train)), y_train, pd.DataFrame(scaler.transform(X_test)), y_test)
-            else:
-                model.fit(pd.DataFrame(scaler.transform(X_train)), y_train)
-            y_pred = model.predict(pd.DataFrame(scaler.transform(X_test)))
+        if 'TabNet' in name:
+            model.fit(X_train, y_train, X_test, y_test)
         else:
-            if 'TabNet' in name:
-                model.fit(X_train, y_train, X_test, y_test)
-            else:
-                model.fit(X_train, y_train)
-            y_pred = model.predict(X_test)
+            model.fit(X_train, y_train)
+        
+        y_pred = model.predict(X_test)
         predictions[name] = y_pred
-        R2[name] = r2_score(y_test, y_pred)
-        RMSE[name] = mean_squared_error(y_test, y_pred, squared = False)
-        
-        if grid_h == 2:
-            if 'StandardScaler' in name:
-                y_pred = model.predict(pd.DataFrame(scaler.transform(X_elem)))
-            else:
-                y_pred = model.predict(X_elem)
-            predictions_elem[name] = y_pred.flatten()
-            R2_elem[name] = r2_score(y_elem, y_pred)
-            RMSE_elem[name] = mean_squared_error(y_elem, y_pred, squared = False)
-        
-        
-    i = 0
-    fig, ax = plt.subplots(grid_h, len(models), figsize = (5*len(models), 4*grid_h))
-    for name, model in models.items():
-        print(f'Plotting {name} predictions')
-        if grid_h == 1:
-            ax[i].plot(y_test, predictions[name], 'r.')
-            ax[i].plot([0, np.amax(y_test)], [0, np.amax(y_test)], color = 'b', ls = '--')
-            ax[i].set_title(f'{name}')
-            ax[i].text(x = 0, y = 1, s = f'$R^2$ = {R2[name]:.4f}', transform = ax[i].transAxes)
-        else:
-            ax[0, i].plot(y_test, predictions[name], 'r.')
-            ax[0, i].plot([0, np.amax(y_test)], [0, np.amax(y_test)], color = 'b', ls = '--')
-            ax[0, i].set_title(f'{name}')
-            ax[0, i].text(x = 0, y = 1.02, s = f'$R^2$ = {R2[name]:.4f}  \nRMSE = {RMSE[name]:.4f}',  transform = ax[0, i].transAxes)
-            
-            #ax[1, i].plot(y_elem, predictions_elem[name], 'r.')
-            sns.scatterplot(x = y_elem, y = predictions_elem[name], ax = ax[1, i], style = label_elem['Element'], hue = label_elem['Element'])
-            ax[1, i].plot([0, np.amax(y_elem)], [0, np.amax(y_elem)], color = 'b', ls = '--')
-            ax[1, i].text(x = 0, y = 1.01, s = f'$R^2$ = {R2_elem[name]:.4f}    RMSE = {RMSE_elem[name]:.4f}',  transform = ax[1, i].transAxes)
-        i += 1
-    plt.show()
+        if plot:
+            R2[name] = r2_score(y_test, y_pred)
+            RMSE[name] = root_mean_squared_error(y_test, y_pred)
+            MRE[name] = (np.abs(y_test - y_pred.reshape(y_pred.shape[0])) / y_test).mean()
 
-    return predictions, predictions_elem, fig, ax
+        if grid_h == 2:
+            y_pred = model.predict(X_elem)
+            predictions_elem[name] = y_pred.flatten()
+            
+            if plot:
+                R2_elem[name] = r2_score(y_elem, y_pred)
+                RMSE_elem[name] = root_mean_squared_error(y_elem, y_pred)
+                MRE_elem[name] = (np.abs(y_elem - y_pred.reshape(y_pred.shape[0])) / y_elem).mean()
+        
+    if plot == True:
+        i = 0
+        fig, ax = plt.subplots(grid_h, len(models), figsize = (5*len(models), 4*grid_h))
+        for name, model in models.items():
+            print(f'Plotting {name} predictions')
+            if grid_h == 1:
+                ax[i].plot(y_test, predictions[name], 'r.')
+                ax[i].plot([0, np.amax(y_test)], [0, np.amax(y_test)], color = 'b', ls = '--')
+                ax[i].set_title(f'{name}')
+                ax[i].text(x = 0, y = 1, s = f'$R^2$ = {R2[name]:.4f}', transform = ax[i].transAxes)
+            else:
+                ax[0, i].plot(y_test, predictions[name], 'r.')
+                ax[0, i].plot([0, np.amax(y_test)], [0, np.amax(y_test)], color = 'b', ls = '--')
+                ax[0, i].set_title(f'{name}')
+                ax[0, i].text(x = 0, y = 1.02, s = f'$R^2$ = {R2[name]:.4f}  \nRMSE = {RMSE[name]:.4f}',  transform = ax[0, i].transAxes)
+
+                #ax[1, i].plot(y_elem, predictions_elem[name], 'r.')
+                sns.scatterplot(x = y_elem, y = predictions_elem[name], ax = ax[1, i], style = label_elem['Element'], hue = label_elem['Element'])
+                ax[1, i].plot([0, np.amax(y_elem)], [0, np.amax(y_elem)], color = 'b', ls = '--')
+                ax[1, i].text(x = 0, y = 1.01, s = f'$R^2$ = {R2_elem[name]:.4f}    RMSE = {RMSE_elem[name]:.4f}',  transform = ax[1, i].transAxes)
+            i += 1
+        plt.show()
+        return predictions, predictions_elem, fig, ax
+    
+    else:
+        return predictions, predictions_elem
+    
+
+
+def train_ensemble(ensemble):
+    glob_path = 'C:\\Users\\Alex\\Documents\\GitHub'
+    models_d     = {}
+    preds_d      = {}
+    preds_elem_d = {}
+
+    for item in tqdm(ensemble):
+        if '_A+I_' in item:
+            parameter = 'width'
+        elif '_Shift_' in item:
+            parameter = 'shift'
+        elif '_Both_' in item:
+            parameter = 'both'
+        else:
+            raise NameError(f"Parameter for prediction must be specified in model's name: {item}")
+
+        if 'KNN' in item:
+            path = glob_path + '\\KNN'
+        elif 'RF' in item:
+            path = glob_path + '\\RF'
+        elif 'XGB' in item:
+            path = glob_path + '\\XGB'
+        elif 'LightGBM' in item:
+            path = glob_path + '\\LightGBM'
+        elif 'CatBoost' in item:
+            path = glob_path + '\\CatBoost'
+
+        models_d_item = create_models_dict([item], path = path)
+
+        if '_Eraw_' in item:
+            normalized_energy = False
+        elif '_Enorm' in item:
+            normalized_energy = True
+
+        if '_Raw_' in item:
+            augmented_train_set = False
+        elif '_Aug_' in item:
+            augmented_train_set = True
+
+        if '_No' in item:
+            apply_scaler = False
+        elif '_Scaler' in item:
+            apply_scaler = True
+        
+        X_train, Y_train, X_test, Y_test, X_elem, Y_elem, L_elem, scaler = constr_train_test(parameter,
+                                                                                             augmented_train_set,
+                                                                                             scaled_target=True,
+                                                                                             normalized_energy = normalized_energy,
+                                                                                             print_stats = False)
+        if apply_scaler:
+            preds, preds_elem = plot_model_prediction(models_d_item,
+                                                      scaler.transform(X_train), Y_train,
+                                                      scaler.transform(X_test), Y_test,
+                                                      scaler.transform(X_elem), Y_elem, L_elem, 
+                                                      plot = False)
+        else:
+            preds, preds_elem = plot_model_prediction(models_d_item,
+                                                      X_train, Y_train,
+                                                      X_test, Y_test,
+                                                      X_elem, Y_elem, L_elem, 
+                                                      plot = False)
+        preds_d = preds_d | preds
+        preds_elem_d = preds_elem_d | preds_elem
+    
+    return preds_d, preds_elem_d  
