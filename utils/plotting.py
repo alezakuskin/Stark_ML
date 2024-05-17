@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import Stark_ML
 from sklearn.metrics import r2_score, mean_squared_error
+from tqdm.notebook import tqdm
+
 
 def name_to_model(model):
     if "KNN" in model:
@@ -149,7 +151,6 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
         return predictions, predictions_elem
     
 
-
 def train_ensemble(ensemble):
     glob_path = 'C:\\Users\\Alex\\Documents\\GitHub'
     models_d     = {}
@@ -215,3 +216,85 @@ def train_ensemble(ensemble):
         preds_elem_d = preds_elem_d | preds_elem
     
     return preds_d, preds_elem_d  
+
+
+def constr_train_test(parameter, augmented_train_set, scaled_target, normalized_energy, print_stats = True):
+    #Applying 'width' or 'shift' or 'both' selection
+    if parameter == 'width':
+        X_train, Y_train = data_width_train.copy(), target_width_train.copy()
+        X_test, Y_test = data_width_test.copy(), target_width_test.copy()
+        X_elem, Y_elem, L_elem = data_width_elements.copy(), target_width_elements.copy(), label_width_elements.copy()
+    elif parameter == 'shift':
+        X_train, Y_train = data_shift_train, target_shift_train
+        X_test, Y_test = data_shift_test, target_shift_test
+        X_elem, Y_elem, L_elem = data_shift_elements, target_shift_elements, label_shift_elements
+    elif parameter == 'both':
+        X_train, Y_train = data_both_train, target_both_train
+        X_test, Y_test = data_both_test, target_both_test
+        X_elem, Y_elem, L_elem = data_both_elements, target_both_elements, label_both_elements
+    else:
+        raise NameError('Incorrect parameter name selected')
+
+    #Handling augmentation
+    if augmented_train_set:
+        factor = 1.05
+        X_train_aug, Y_train_aug = X_train.copy(), Y_train.copy()
+        for index, row in X_train.iterrows():
+            row['T'] = row['T']*factor
+            X_train_aug = pd.concat([X_train_aug, row.to_frame().T], ignore_index=True)
+            Y_train_aug = pd.concat([Y_train_aug, pd.Series(Y_train.loc[index])], ignore_index=True)
+
+            row['T'] = row['T']/factor**2
+            X_train_aug = pd.concat([X_train_aug, row.to_frame().T], ignore_index=True)
+            Y_train_aug = pd.concat([Y_train_aug, pd.Series(Y_train.loc[index])], ignore_index=True)
+        X_train_aug = X_train_aug.astype(X_train.dtypes.to_dict())    
+
+        X_train, Y_train = X_train_aug, Y_train_aug
+        X_test,  Y_test  = X_test, Y_test
+
+    #Shuffling
+    X_train = X_train.sample(frac = 1, random_state = 777)
+    Y_train = Y_train.sample(frac = 1, random_state = 777)
+
+    #Applying upper boundary to width values
+#     if parameter == 'width':
+#         X_train, Y_train = X_train.loc[Y_train.loc[Y_train < width_threshold].index], Y_train.loc[Y_train < width_threshold]
+#         X_test,  Y_test  = X_test.loc[Y_test.loc[Y_test < width_threshold].index], Y_test.loc[Y_test < width_threshold]
+#         X_elem,  Y_elem  = X_elem.loc[Y_elem.loc[Y_elem < width_threshold].index], Y_elem.loc[Y_elem < width_threshold]
+#         L_elem = L_elem.loc[Y_elem.loc[Y_elem < width_threshold].index]
+    
+    #Applying scaling of targets
+    if scaled_target:
+        Y_train = np.log(1 + Y_train / epsilon)
+        Y_test  = np.log(1 + Y_test / epsilon)
+        Y_elem  = np.log(1 + Y_elem / epsilon)
+
+    #Normalizing energies
+    if normalized_energy:
+        X_train['E lower'], X_train['E upper'] = energy_to_fraction(X_train, 'E lower'), energy_to_fraction(X_train, 'E upper')
+        X_test['E lower'],  X_test['E upper']  = energy_to_fraction(X_test, 'E lower'), energy_to_fraction(X_test, 'E upper')
+        X_elem['E lower'],  X_elem['E upper']  = energy_to_fraction(X_elem, 'E lower'), energy_to_fraction(X_elem, 'E upper')
+        X_train['Gap to ion'] = energy_to_fraction(X_train, 'Gap to ion')
+        X_test['Gap to ion'] = energy_to_fraction(X_test, 'Gap to ion')
+        X_elem['Gap to ion'] = energy_to_fraction(X_elem, 'Gap to ion')
+
+    #Removing unneccesary columns:
+    X_train = X_train.drop(columns=['Element', 'Wavelength', 'Z number'])
+    X_test  = X_test.drop(columns=['Element', 'Wavelength', 'Z number'])
+    X_elem  = X_elem.drop(columns=['Element', 'Wavelength', 'Z number'])
+
+    scaler = StandardScaler()
+    scaler.fit(X_train)
+
+    if print_stats:
+        print(f'Selected parameter: {parameter} \n')
+        if augmented_train_set:
+            print(f'Total number of items with known {parameter}: {X_train.shape[0]/3 + X_test.shape[0] + X_elem.shape[0]}')
+        else:
+            print(f'Total number of items with known {parameter}: {X_train.shape[0] + X_test.shape[0] + X_elem.shape[0]}')
+
+        print(f'Size of training set: {X_train.shape[0]}')
+        print(f'Size of ttest set: {X_test.shape[0]}')
+        print(f'Size of elements-exclusive test set: {X_elem.shape[0]}')
+    
+    return(X_train, Y_train, X_test, Y_test, X_elem, Y_elem, L_elem, scaler)
