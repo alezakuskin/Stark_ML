@@ -1,6 +1,6 @@
 import optuna
 from sklearn.model_selection import KFold
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, root_mean_squared_error
 from sklearn.model_selection import cross_val_score
 
 class Objective(object):
@@ -22,14 +22,17 @@ class Objective(object):
 
         # Cross validate the chosen hyperparameters
         kf = KFold(self.params['nfold'], shuffle = False)
+        if self.params['squared_metrics']:
+            metrics = mean_squared_error
+        elif not self.params['squared_metrics']:
+            metrics = root_mean_squared_error
         for train, test in kf.split(self.X):
             X_train, y_train = self.X.iloc[train, :], self.y.iloc[train]
             X_val, y_val = self.X.iloc[test, :], self.y.iloc[test]
             
             model = self.model_name(trial_params)
             model.fit(X_train, y_train, X_val, y_val)
-            score += mean_squared_error(y_val, model.predict(X_val),
-                                        squared = self.params['squared_metrics'])
+            score += metrics(y_val, model.predict(X_val))
 
         score /= self.params['nfold']
         model = None
