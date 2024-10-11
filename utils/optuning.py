@@ -36,12 +36,7 @@ class Objective(object):
 
         score /= self.params['nfold']
         model = None
-        #Sklearn cross_val_score doesn't work because it needs sklearn model
-        '''score = -cross_val_score(estimator = model,
-                                X = self.X, y = self.y,
-                                cv = params['nfold'],
-                                scoring = 'neg_root_mean_squared_error')'''
-
+        
         return score
 
 
