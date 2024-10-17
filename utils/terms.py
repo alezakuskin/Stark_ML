@@ -289,17 +289,21 @@ def NIST_to_StarkML(NIST_df, data_template, spectra):
 def split_OK_check(StarkML_df, save_txts = True, save_manual_check = True):
     StarkML_df = StarkML_df.drop(columns = [col for col in list(StarkML_df.columns)[1 +list(StarkML_df.columns).index('d (A)'):]])
     need_manual_check = pd.DataFrame(columns = StarkML_df.columns)
-    leave_OK, need_manual_check = StarkML_df.groupby((StarkML_df['Multiplicity'].isna() == True) |
-                                                     (StarkML_df['Multiplicity.1'].isna() == True) |
-                                                     (StarkML_df['Term'].isna() == True) |
-                                                     (StarkML_df['Term.1'].isna() == True) |
-                                                     (StarkML_df['J'].isna() == True) |
-                                                     (StarkML_df['J.1'].isna() == True) |
-                                                     (StarkML_df['E lower'].isna() == True) |
-                                                     (StarkML_df['E upper'].isna() == True)
-                                       )
-    leave_OK = leave_OK[1].fillna(0).reset_index(drop = True)
-    need_manual_check = need_manual_check[1]
+    
+    c0 = StarkML_df['Multiplicity'].isna() == True
+    c1 = StarkML_df['Multiplicity.1'].isna() == True
+    c2 = StarkML_df['Term'].isna() == True
+    c3 = StarkML_df['Term.1'].isna() == True
+    c4 = StarkML_df['J'].isna() == True
+    c5 = StarkML_df['J.1'].isna() == True
+    c6 = StarkML_df['E lower'].isna() == True
+    c7 = StarkML_df['E upper'].isna() == True
+    cond = c0 | c1 | c2 | c3 | c4 | c5 | c6 | c7
+    
+    leave_OK = StarkML_df[~cond]
+    need_manual_check = StarkML_df[cond]
+    
+    leave_OK = leave_OK.fillna(0).reset_index(drop = True)
     
     for index, item in leave_OK.iterrows():
         Z1 = sum([leave_OK.loc[index, leave_OK.columns[i]] for i in range(list(StarkML_df.columns).index('Charge'),
