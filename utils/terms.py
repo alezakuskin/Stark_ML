@@ -337,6 +337,61 @@ def NIST_to_StarkML(NIST_df, data_template, spectra):
     return req_df
 
 
+def DB_to_StarkML(DB_df, data_template):
+    '''
+    
+    Parameters
+    ----------
+    DB_df : pd.DataFrame, 
+    
+    data_template : pd.DataFrame, 
+    
+    
+    Returns
+    ----------
+    pd.DataFrame
+        csdcdsc
+    '''
+    req_df = pd.DataFrame(columns = data_template.columns)
+    for index, item in tqdm(DB_df.iterrows()):
+        req_df.loc[index, 'Element'] = item['el_name']
+        
+        req_df.loc[index, 'Wavelength'] = item[f'airwl']
+        
+        req_df.loc[index, 'Charge'] = int(item['ion_stage'])
+
+        req_df.loc[index, 'E lower'] = item['elow']* 8065.544272398230936815492013836
+        req_df.loc[index, 'E upper'] = item['eup'] * 8065.544272398230936815492013836
+
+        encode_down = encode_term_DB(item['termlow'])
+        encode_up   = encode_term_DB(item['termup'])
+        
+        req_df.loc[index, 'Multiplicity.1'] = encode_up[0]
+        req_df.loc[index, 'Multiplicity']   = encode_down[0]
+        req_df.loc[index, 'Term.1'] = encode_up[1]
+        req_df.loc[index, 'Term']   = encode_down[1]
+        req_df.loc[index, 'Parity.1'] = encode_up[2]
+        req_df.loc[index, 'Parity']   = encode_down[2]
+
+        req_df.loc[index, 'J']   = (item['glow'] - 1)/2
+        req_df.loc[index, 'J.1'] = (item['gup']  - 1)/2
+
+        encode_up   = encode_configuration(item['confup'])
+        encode_down = encode_configuration(item['conflow'])
+        
+        for key in encode_up:
+            if f'{key}.1' in req_df.columns:
+                req_df.loc[index, f'{key}.1'] = encode_up[key]
+            else:
+                req_df.loc[index, key] = encode_up[key]
+        for key in encode_down:
+            req_df.loc[index, key] = encode_down[key]
+
+        req_df.loc[index, 'Z number'] = sum([req_df.loc[index, req_df.columns[i]] for i in range(list(req_df.columns).index('Charge'),
+                                                                                                 list(req_df.columns).index('Multiplicity')) if str(req_df.loc[index, req_df.columns[i]]) != 'nan'])
+    return req_df
+
+
 def split_OK_check(StarkML_df, save_txts = True, save_manual_check = True):
     StarkML_df = StarkML_df.drop(columns = [col for col in list(StarkML_df.columns)[1 +list(StarkML_df.columns).index('d (A)'):]])
     need_manual_check = pd.DataFrame(columns = StarkML_df.columns)
