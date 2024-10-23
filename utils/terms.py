@@ -128,7 +128,7 @@ def encode_term_DB(term_str):
     '''
     Takes a single string from DataBase output, returns list [Multiplicity, Term, Parity]
     '''
-    if str(term_str) == 'nan':
+    if str(term_str) == 'None':
 #        print(f'The term {term_str} is not in LS coupling')
         return [np.nan, np.nan, np.nan]
     if '[' in term_str or ']' in term_str or term_str == '*' or term_str.isnumeric():
