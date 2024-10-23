@@ -124,6 +124,57 @@ def encode_term(term_str):
     return [multiplicity, term, parity]
 
 
+def encode_term_DB(term_str):
+    '''
+    Takes a single string from DataBase output, returns list [Multiplicity, Term, Parity]
+    '''
+    if str(term_str) == 'nan':
+#        print(f'The term {term_str} is not in LS coupling')
+        return [np.nan, np.nan, np.nan]
+    if '[' in term_str or ']' in term_str or term_str == '*' or term_str.isnumeric():
+#        print(f'The term {term_str} is not in LS coupling')
+        return [np.nan, np.nan, np.nan]
+    if '(' in term_str and ')' in term_str:
+#        print(f'The term {term_str} is not in LS coupling')
+        return [np.nan, np.nan, np.nan]
+    if 'K' in term_str:
+#        print(f'K terms are currently not supported')
+        return [np.nan, np.nan, np.nan]
+    if str(term_str).endswith('e'):
+#        print(f'Term set equal to energy')
+        return [np.nan, np.nan, np.nan]
+    
+    #Parity
+    if term_str.endswith('*'):
+        parity = 0
+        term_str = term_str.replace('*', '')
+    else:
+        parity = 1
+        
+    #Cut irrelevant symbols
+    if ' ' in term_str:
+        term_str = term_str[1 + term_str.rfind(' '):]
+        
+    #Multiplicity and term 
+    if len(term_str) == 1:
+        multiplicity, term = np.nan, np.nan
+    elif not term_str[0].isnumeric():
+        term_str = term_str[1:]
+    if term_str[1].isnumeric():
+        multiplicity = int(term_str[:2])
+        try:
+            term = term_to_number(term_str[2])[0]
+        except:
+            term = np.nan
+    else:
+        multiplicity = int(term_str[0])
+        try:
+            term = term_to_number(term_str[1])[0]
+        except:
+            term = np.nan
+    return [multiplicity, term, parity]
+
+
 def encode_J(J_str):
     if 'or' in str(J_str) or ',' in str(J_str):
         return np.nan
