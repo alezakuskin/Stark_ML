@@ -1,9 +1,9 @@
-catboost==1.2.2
+catboost==1.2.7
 graphviz==0.20.1
 lightgbm==4.2.0
 mariadb==1.1.10
 munkres==1.1.4
-pandas @ file:///C:/b/abs_81b3npjrl8/croot/pandas_1697477219064/work/dist/pandas-2.1.1-cp311-cp311-win_amd64.whl#sha256=1732f3b07ba52119320a2b01aa09f2627f6258176e492b728daf60efb4f4d78e
+pandas==2.1.1
 roman==4.1
 scikit-learn==1.4.1.post1
 scipy==1.11.3
