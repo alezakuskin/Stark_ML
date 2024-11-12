@@ -31,10 +31,11 @@ class Predictor:
         self.model5 = joblib.load(path_models + '/LightGBM_A+I_Enorm_Raw_Scaler.pkl')
         
         #Import pretrained model for shift prediction
-        self.model_shift = joblib.load(path_models + '/RF_Both_Eraw_Aug_No.pkl')
+        self.model_both = joblib.load(path_models + '/RF_Both_Eraw_Aug_No.pkl')
 
         #Import Standard Scaler
-        self.scaler = joblib.load(path_models + '/scaler_width.pkl')
+        self.scaler_width = joblib.load(path_models + '/scaler_width.pkl')
+        #self.scaler_shift = joblib.load(path_models + '/scaler_shift.pkl')
         
         self.epsilon = 1e-3
         
@@ -62,7 +63,7 @@ class Predictor:
         data_for_prediction['Gap to ion'] = energy_to_fraction(data_for_prediction, 'Gap to ion')
         pred2 = self.model2.predict(data_for_prediction.drop(columns=['Element', 'Wavelength', 'Z number', 'w (A)', 'd (A)']))
         pred3 = self.model3.predict(data_for_prediction.drop(columns=['Element', 'Wavelength', 'Z number', 'w (A)', 'd (A)']))
-        pred5 = self.model5.predict(self.scaler.transform(data_for_prediction.drop(columns=['Element', 'Wavelength', 'Z number', 'w (A)', 'd (A)'])))
+        pred5 = self.model5.predict(self.scaler_width.transform(data_for_prediction.drop(columns=['Element', 'Wavelength', 'Z number', 'w (A)', 'd (A)'])))
         preds = (pred1 + pred2 + pred3 + pred4 + pred5)/5
         preds = (np.exp(preds) - 1) * self.epsilon
         
@@ -88,9 +89,9 @@ class Predictor:
         
         #Adjust input data
         data_for_prediction['w (A)'] = widths
-        data_for_prediction = data_for_prediction[self.model_shift.model.feature_names_in_]
+        data_for_prediction = data_for_prediction[self.model_both.model.feature_names_in_]
         
         #Get shift predictions
-        preds = self.model_shift.predict(data_for_prediction)
+        preds = self.model_both.predict(data_for_prediction)
         
         return np.column_stack((widths, preds))
