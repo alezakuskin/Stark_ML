@@ -4,6 +4,11 @@ import numpy as np
 from tqdm import tqdm
 import roman
 
+
+class UserDefinedError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
 def term_to_number(term):
   import pandas as pd
   momentum = pd.Series(dtype = 'float64')
@@ -60,7 +65,7 @@ def gap_to_ion(data, column_name = None, file = Stark_ML.__path__.__dict__['_pat
     import numpy as np
     ion_Es = pd.read_csv(file)
     gap = pd.Series()
-    for index, val in enumerate(data['Gap to ion']):
+    for index, val in data['Gap to ion'].items():
         gap.at[index] = float((ion_Es.loc[ion_Es['Element'] == data.loc[index]['Element']][str(data.loc[index]['Charge'])]).iloc[0]) - data.loc[index][column_name]
         if np.isnan(gap.at[index]):
             print(f"Please find and insert to '/Source_files/E_ion.csv' ionization energy value for {data.loc[index]['Element']} with charge {data.loc[index]['Charge']}")
@@ -267,6 +272,76 @@ def encode_configuration(conf_str):
     return pop_dict
 
 
+def encode_configuration_DB(conf_str):
+
+    max_population = {
+    '1s': 2,
+    '2s': 2,
+    '2p': 6,
+    '3s': 2,
+    '3p': 6,
+    '3d': 10,
+    '4s': 2,
+    '4p': 6,
+    '5s': 2,
+    '4d': 10,
+    '5p': 6,
+    '4f': 14,
+    '5d': 10,
+    '6s': 2,
+    '6p': 6,
+    '7s': 2,
+    '5f': 14,
+    '6d': 10,
+    '7p': 6,
+    '7d': 10,
+    '8s': 2,
+    '8p': 6,
+    '8d': 10,
+    '9s': 2,
+    '10s': 2,
+    '11s': 2
+    }
+    
+    if not isinstance(conf_str, str):
+        return {
+            '1s': np.nan
+        }
+    if conf_str.isnumeric():
+        return {
+            '1s': np.nan
+        }
+    
+    conf_str = conf_str.replace(' ', '.')
+    pop_dict = {}
+    shells = [shell for shell in conf_str.split('.')]
+    for _, shell in enumerate(shells):
+        if '(' in shell:
+            shells[_] = shell[:shell.find('(')]
+        if '<' in shell and '>' in shell:
+            shells[_] = shell[:shell.find('<')]
+        if '?' in shell:
+            shells[_] = shell[:shell.find('?')]
+    
+    shells = [shell for shell in shells if shell]
+    
+    for key in max_population:
+        if key == single_shell(shells[0])[0]:
+            break
+        else:
+            pop_dict[key] = max_population[key]
+    
+    for shell in shells:
+        key, population = single_shell(shell)
+    
+        if key in pop_dict:
+            pop_dict[key] += population
+        else:
+            pop_dict[key] = population
+    
+    return pop_dict
+
+
 def encode_energy(energy_str):
     if str(energy_str).startswith('[') and str(energy_str).endswith(']'):
         return float(energy_str[1:-1])
@@ -352,6 +427,9 @@ def DB_to_StarkML(DB_df, data_template):
     pd.DataFrame
         csdcdsc
     '''
+    if not DB_df:
+        raise UserDefinedError('There are no lines of the selected species in this spectral region')
+        
     req_df = pd.DataFrame(columns = data_template.columns)
     for index, item in tqdm(DB_df.iterrows()):
         req_df.loc[index, 'Element'] = item['el_name']
@@ -376,8 +454,8 @@ def DB_to_StarkML(DB_df, data_template):
         req_df.loc[index, 'J']   = (item['glow'] - 1)/2
         req_df.loc[index, 'J.1'] = (item['gup']  - 1)/2
 
-        encode_up   = encode_configuration(item['confup'])
-        encode_down = encode_configuration(item['conflow'])
+        encode_up   = encode_configuration_DB(item['confup'])
+        encode_down = encode_configuration_DB(item['conflow'])
         
         for key in encode_up:
             if f'{key}.1' in req_df.columns:
@@ -420,12 +498,16 @@ def split_OK_check(StarkML_df, save_txts = True, save_manual_check = True):
             need_manual_check = pd.concat([need_manual_check, leave_OK.loc[index].to_frame().T])
             leave_OK = leave_OK.drop([index])
     
+    leave_OK          = leave_OK.reset_index(drop = True)
+    need_manual_check = need_manual_check.reset_index(drop = True)
+    
     if save_txts:
         if save_manual_check:
             need_manual_check.reset_index(drop = True).to_csv('for_manual_check.txt')
             print(f'{need_manual_check.shape[0]} lines could not be encoded correctly. Please, check them manually in for_manual_check.txt')
-        leave_OK.reset_index(drop = True).to_csv('requested_lines.txt')
+        leave_OK.to_csv('requested_lines.txt')
     
-    print(f'{leave_OK.shape[0]} lines were encoded correctly.')
+    print(f'{leave_OK.shape[0]} line(s) were encoded correctly.')
+    print(f'{need_manual_check.shape[0]} lines could not be encoded correctly. Please, check them manually')
         
-    return leave_OK
+    return leave_OK, need_manual_check
