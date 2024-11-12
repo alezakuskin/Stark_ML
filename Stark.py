@@ -10,26 +10,28 @@ from Stark_ML.utils.predict  import *
 
 predictor = Predictor()
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/', static_folder="C:/Users/Alex/Documents/GitHub/spmodel-webui-starkml/webapp/public")
 
-@app.route('/calculate', methods = ['POST'])
+
+
+@app.route('/cgi-bin/starkml.jar', methods = ['POST'])
 def Stark_predict():
     # Extract the value from the URL
     params = request.args
-    input_type = params.get('input')                          #query or parse                       <mandatory>
-    elements   = params.get('elements')                       #str: NIST-like                       <optional> if input=='query'
-    lower      = params.get('lowwl')                          #float                                <optional> if input=='query'
-    upper      = params.get('upwl')                           #float                                <optional> if input=='query'
-    T_mode     = params.get('T')                              #str 'oneT' or 'multiT'               <mandatory>
-    only_T     = params.get('onlyT')                          #float                                <optional> if T=='oneT'
-    low_T      = params.get('lowT')                           #float                                <optional> if T=='multiT'
-    high_T     = params.get('upT')                            #float                                <optional> if T=='multiT'
-    T_step     = params.get('dT')                             #float                                <optional> always
-    target     = params.get('output')                         #str 'both' or 'widths' or 'shifts'   <mandatory>
-    symbol_out = params.get('out_sym')                        #boolean                              <mandatory>
-    wavel_out  = params.get('out_wl')                         #boolean                              <mandatory>
-    temp_out   = params.get('out_temp')                       #boolean                              <mandatory>
-    charge_out = params.get('out_chrg')                       #boolean                              <mandatory>
+    input_type = request.form.get('input', None)                          #query or parse                       <mandatory>
+    elements   = request.form.get('elements', None)                       #str: NIST-like                       <optional> if input=='query'
+    lower      = request.form.get('lowwl', None)                          #float                                <optional> if input=='query'
+    upper      = request.form.get('upwl', None)                           #float                                <optional> if input=='query'
+    T_mode     = request.form.get('T', None)                              #str 'oneT' or 'multiT'               <mandatory>
+    only_T     = request.form.get('onlyT', None)                          #float                                <optional> if T=='oneT'
+    low_T      = request.form.get('lowT', None)                           #float                                <optional> if T=='multiT'
+    high_T     = request.form.get('upT', None)                            #float                                <optional> if T=='multiT'
+    T_step     = request.form.get('dT', None)                             #float                                <optional> always
+    target     = request.form.get('output', None)                         #str 'both' or 'widths' or 'shifts'   <mandatory>
+    symbol_out = request.form.get('out_sym', None)                        #boolean                              <mandatory>
+    wavel_out  = request.form.get('out_wl', None)                         #boolean                              <mandatory>
+    temp_out   = request.form.get('out_temp', None)                       #boolean                              <mandatory>
+    charge_out = request.form.get('out_chrg', None)                       #boolean                              <mandatory>
     
     save_for_manual_check = True
     
@@ -78,19 +80,20 @@ def Stark_predict():
     def _add_temperature(data: pd.DataFrame,
                         T_mode: str):
         if T_mode == 'oneT':
+            #only_T = float(only_T)
             dtypes = data.dtypes.to_dict()
             for index, row in data.iterrows():
-                data.at[index, 'T'] = only_T
+                data.at[index, 'T'] = float(only_T)
             data = data.astype(dtypes)
             return data
 
         if T_mode == 'multiT':
             dtypes = data.dtypes.to_dict()
-            Ts = np.arange(low_T, high_T + 1, T_step)
+            Ts = np.arange(float(low_T), float(high_T) + 1, float(T_step))
             for index, row in data.iterrows():
-                data.at[index, 'T'] = low_T
+                data.at[index, 'T'] = float(low_T)
                 for T in Ts:
-                    if T == low_T:
+                    if T == float(low_T):
                         continue
                     row['T'] = T
                     data = pd.concat([data, row.to_frame().T], ignore_index=True)
@@ -106,15 +109,16 @@ def Stark_predict():
                            usecols='A:BQ',
                            nrows = 2
                        )
-    request_df = split_OK_check(DB_to_StarkML(DB_df, data_i), save_manual_check = save_for_manual_check, save_txts = False)
-    
-    
-    
+    try:
+        request_df, lines_for_check = split_OK_check(DB_to_StarkML(DB_df, data_i), save_manual_check = save_for_manual_check, save_txts = False)
+    except UserDefinedError as e:
+        return jsonify({'error': str(e)})
+        
     request_df.insert(request_df.columns.get_loc('E upper')+1, 'Gap to ion', 0)
     request_df['Gap to ion'] = gap_to_ion(request_df, 'E upper')
-    request_df = request_df
+    request_df = _add_temperature(request_df, T_mode)
     
-    #request_df = _add_temperature(request_df, T_mode)
+    request_df = request_df.sort_values(by = ['Wavelength', 'T'], ignore_index = True)
     
     if target == 'widths':
         preds = predictor.predict_width(request_df)
@@ -126,7 +130,7 @@ def Stark_predict():
         preds = predictor.predict_shift(request_df)
         preds = pd.DataFrame(preds, columns = ['w (A)', 'd (A)'])
         
-       
+    
     columns = ['Element', 'Charge', 'Wavelength', 'T', 'w (A)', 'd (A)']
     
     results = pd.DataFrame(columns = list(compress(columns, [symbol_out, charge_out, wavel_out, temp_out,
@@ -139,9 +143,9 @@ def Stark_predict():
             ],
         axis = 1
         )
-        
+       
     
-    return jsonify(results.to_json(orient = 'records'))
+    return jsonify(results.to_dict(orient = 'list'))
 
 
 @app.route('/count_lines', methods = ['POST'])
