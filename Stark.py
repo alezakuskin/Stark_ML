@@ -1,6 +1,7 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from itertools import compress
 
+import json
 import numpy as np
 import pandas as pd
 
@@ -9,15 +10,17 @@ from Stark_ML.utils.comms    import *
 from Stark_ML.utils.predict  import *
 
 predictor = Predictor()
+with open('Stark_ML/credentials.json', 'r') as file:
+    creds = json.load(file)
 
 app = Flask(__name__, static_url_path='/', static_folder="C:/Users/Alex/Documents/GitHub/spmodel-webui-starkml/webapp/public")
-
 
 
 @app.route('/cgi-bin/starkml.jar', methods = ['POST'])
 def Stark_predict():
     # Extract the value from the URL
     params = request.args
+    
     input_type = request.form.get('input', None)                          #query or parse                       <mandatory>
     elements   = request.form.get('elements', None)                       #str: NIST-like                       <optional> if input=='query'
     lower      = request.form.get('lowwl', None)                          #float                                <optional> if input=='query'
@@ -40,8 +43,8 @@ def Stark_predict():
                     upper: float):
         elements, ionizations = convert_species_request(spectra)
 
-        connection = connect_to_DB(username = '',
-                                  password = '')
+        connection = connect_to_DB(username = creds['username'],
+                                  password = creds['password'])
         cur = connection.cursor()
         DB_df = None
         for i in range(len(elements)):
@@ -101,19 +104,46 @@ def Stark_predict():
             return data
         
         
+    def _send_response(data):
+        if request.accept_mimetypes['application/json']:
+            return jsonify(data.to_dict(orient = 'list'))
+        elif request.accept_mimetypes['text/plain']:
+            response = make_response(data.to_csv(sep = '\t', index = False))
+            response.headers['Content-Type']        = 'text/plain'
+            response.headers['Content-Disposition'] = 'attachment; filename = "prediction.txt"'
+            return response
     
-    DB_df = _handle_query(elements, lower, upper)
-    
-    data_i = pd.read_excel(Stark_ML.__path__.__dict__['_path'][0] + '/Source_files/Stark_data.xlsx',
-                           sheet_name='Ions',
-                           usecols='A:BQ',
-                           nrows = 2
-                       )
-    try:
-        request_df, lines_for_check = split_OK_check(DB_to_StarkML(DB_df, data_i), save_manual_check = save_for_manual_check, save_txts = False)
-    except UserDefinedError as e:
-        return jsonify({'error': str(e)})
         
+    def _get_lines_from_DB():
+        DB_df = _handle_query(elements, lower, upper)
+        data_i = pd.read_excel(Stark_ML.__path__.__dict__['_path'][0] + '/Source_files/Stark_data.xlsx',
+                               sheet_name='Ions',
+                               usecols='A:BQ',
+                               nrows = 2
+                           )
+        try:
+            request_df, lines_for_check = split_OK_check(DB_to_StarkML(DB_df, data_i), save_manual_check = save_for_manual_check, save_txts = False)
+            return request_df, lines_for_check
+        except UserDefinedError as e:
+            raise UserDefinedError(e)
+            
+        
+    if input_type == 'query':
+        try:
+            request_df, lines_for_check = _get_lines_from_DB()
+        except UserDefinedError as e:
+            return jsonify({'error': str(e)})
+    elif input_type == 'parse':
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file'})
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'})
+        #try:
+        request_df = pd.read_csv(io.StringIO(file.stream.read().decode("UTF8")))
+        #except:
+            
+    
     request_df.insert(request_df.columns.get_loc('E upper')+1, 'Gap to ion', 0)
     request_df['Gap to ion'] = gap_to_ion(request_df, 'E upper')
     request_df = _add_temperature(request_df, T_mode)
@@ -144,13 +174,22 @@ def Stark_predict():
         axis = 1
         )
        
-    
-    return jsonify(results.to_dict(orient = 'list'))
+    #_send_response(results)
+    return _send_response(results)
 
 
 @app.route('/count_lines', methods = ['POST'])
 def count_lines():
     results = 'bbb'
     return jsonify(results)
+    
+    
+    
+    
+    
+    
+    
+    
+    
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=5000)
