@@ -63,7 +63,7 @@ def uncertainty_to_number(uncertainty_class):
 def gap_to_ion(data, column_name = None, file = Stark_ML.__path__.__dict__['_path'][0] + '/Source_files/E_ion.csv'):
     import pandas as pd
     import numpy as np
-    ion_Es = pd.read_csv(file)
+    ion_Es = pd.read_csv(file, compression = None)
     gap = pd.Series()
     for index, val in data['Gap to ion'].items():
         gap.at[index] = float((ion_Es.loc[ion_Es['Element'] == data.loc[index]['Element']][str(data.loc[index]['Charge'])]).iloc[0]) - data.loc[index][column_name]
@@ -427,7 +427,7 @@ def DB_to_StarkML(DB_df, data_template):
     pd.DataFrame
         csdcdsc
     '''
-    if not DB_df:
+    if DB_df is None:
         raise UserDefinedError('There are no lines of the selected species in this spectral region')
         
     req_df = pd.DataFrame(columns = data_template.columns)
