@@ -2,16 +2,18 @@ from flask import Flask, request, jsonify, make_response
 from itertools import compress
 
 import json
+import io
 import numpy as np
 import pandas as pd
+import datetime as dt
 
 from Stark_ML.utils.encoding import *
 from Stark_ML.utils.comms    import *
 from Stark_ML.utils.predict  import *
 
 predictor = Predictor()
-with open('Stark_ML/credentials.json', 'r') as file:
-    creds = json.load(file)
+#with open('Stark_ML/credentials.json', 'r') as file:
+#    creds = json.load(file)
 
 app = Flask(__name__, static_url_path='/', static_folder="C:/Users/Alex/Documents/GitHub/spmodel-webui-starkml/webapp/public")
 
@@ -38,47 +40,7 @@ def Stark_predict():
     
     save_for_manual_check = True
     
-    def _handle_query(spectra: str,
-                    lower: float,
-                    upper: float):
-        elements, ionizations = convert_species_request(spectra)
-
-        connection = connect_to_DB(username = creds['username'],
-                                  password = creds['password'])
-        cur = connection.cursor()
-        DB_df = None
-        for i in range(len(elements)):
-            el = elements[i]
-            ion = ionizations[i]
-            if ion != 'All':
-                query = f'''
-                SELECT *
-                FROM mytestview2
-                WHERE airwl >= ?
-                AND airwl <= ?
-                AND el_name = ?
-                AND ion_stage in {f"({', '.join(map(str, ion))})"}
-                '''
-            else:
-                query = f'''
-                SELECT *
-                FROM mytestview2
-                WHERE airwl >= ?
-                AND airwl <= ?
-                AND el_name = ?
-                '''
-            cur.execute(query, (lower, upper, el))
-            column_names = [desc[0] for desc in cur.description]
-            req_results = cur.fetchall()
-            req_results = pd.DataFrame(req_results, columns=column_names)
-            if not req_results.empty:
-                if DB_df is None:
-                    DB_df = req_results
-                else:
-                    DB_df = pd.concat([DB_df, req_results], ignore_index=True)
-        cur.close()
-        connection.close()
-        return DB_df
+    
 
     def _add_temperature(data: pd.DataFrame,
                         T_mode: str):
@@ -114,34 +76,21 @@ def Stark_predict():
             return response
     
         
-    def _get_lines_from_DB():
-        DB_df = _handle_query(elements, lower, upper)
-        data_i = pd.read_excel(Stark_ML.__path__.__dict__['_path'][0] + '/Source_files/Stark_data.xlsx',
-                               sheet_name='Ions',
-                               usecols='A:BQ',
-                               nrows = 2
-                           )
-        try:
-            request_df, lines_for_check = split_OK_check(DB_to_StarkML(DB_df, data_i), save_manual_check = save_for_manual_check, save_txts = False)
-            return request_df, lines_for_check
-        except UserDefinedError as e:
-            raise UserDefinedError(e)
+    
             
         
     if input_type == 'query':
         try:
-            request_df, lines_for_check = _get_lines_from_DB()
+            request_df, lines_for_check = get_lines_from_DB(elements, lower, upper, save_for_manual_check = save_for_manual_check)
         except UserDefinedError as e:
             return jsonify({'error': str(e)})
     elif input_type == 'parse':
-        if 'file' not in request.files:
+        if 'upload' not in request.files:
             return jsonify({'error': 'No file'})
-        file = request.files['file']
+        file = request.files['upload']
         if file.filename == '':
             return jsonify({'error': 'No selected file'})
-        #try:
-        request_df = pd.read_csv(io.StringIO(file.stream.read().decode("UTF8")))
-        #except:
+        request_df = pd.read_csv(file, compression = None)
             
     
     request_df.insert(request_df.columns.get_loc('E upper')+1, 'Gap to ion', 0)
@@ -150,6 +99,7 @@ def Stark_predict():
     
     request_df = request_df.sort_values(by = ['Wavelength', 'T'], ignore_index = True)
     
+    start_time = dt.datetime.now()
     if target == 'widths':
         preds = predictor.predict_width(request_df)
         preds = pd.Series(preds, name = 'w (A)')
@@ -159,6 +109,7 @@ def Stark_predict():
     if target == 'both':
         preds = predictor.predict_shift(request_df)
         preds = pd.DataFrame(preds, columns = ['w (A)', 'd (A)'])
+    print(f'Precition of both parameters for {request_df.shape[0]} entries takes {dt.datetime.now() - start_time}')
         
     
     columns = ['Element', 'Charge', 'Wavelength', 'T', 'w (A)', 'd (A)']
@@ -178,10 +129,36 @@ def Stark_predict():
     return _send_response(results)
 
 
-@app.route('/count_lines', methods = ['POST'])
+@app.route('/cgi-bin/count_lines.rb', methods = ['POST'])
 def count_lines():
-    results = 'bbb'
-    return jsonify(results)
+    
+    input_type = request.form.get('input', None)                          #query or parse                       <mandatory>
+    elements   = request.form.get('elements', None)                       #str: NIST-like                       <optional> if input=='query'
+    lower      = request.form.get('lowwl', None)                          #float                                <optional> if input=='query'
+    upper      = request.form.get('upwl', None)                           #float                                <optional> if input=='query'
+    T_mode     = request.form.get('T', None)                              #str 'oneT' or 'multiT'               <mandatory>
+    only_T     = request.form.get('onlyT', None)                          #float                                <optional> if T=='oneT'
+    low_T      = request.form.get('lowT', None)                           #float                                <optional> if T=='multiT'
+    high_T     = request.form.get('upT', None)                            #float                                <optional> if T=='multiT'
+    T_step     = request.form.get('dT', None)                             #float                                <optional> always
+    
+    if input_type == 'parse':
+        if 'upload' not in request.files:
+                return jsonify({'error': 'No file'})
+        file = request.files['upload']
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'})
+        request_df = pd.read_csv(file, compression = None)
+        lines_count = request_df.shape[0]
+    elif input_type == 'query':
+        lines_count = get_lines_from_DB(elements, lower, upper, count_mode = True)
+    
+    
+    if T_mode == 'oneT':
+        return jsonify({'count':f'{lines_count}'})
+    elif T_mode == 'multiT':
+        n_temperatures = (float(high_T) - float(low_T))//float(T_step) + 1
+        return jsonify({'count':f'{int(lines_count*n_temperatures)}'})
     
     
     
