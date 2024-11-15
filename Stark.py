@@ -66,9 +66,12 @@ def Stark_predict():
             return data
         
         
-    def _send_response(data):
+    def _send_response(data, for_check):
         if request.accept_mimetypes['application/json']:
-            return jsonify(data.to_dict(orient = 'list'))
+            ret = data.to_dict(orient = 'list')
+            if for_check is not None:
+                ret['unparsed'] = for_check.fillna(0).to_dict(orient = 'list')
+            return jsonify(ret)
         elif request.accept_mimetypes['text/plain']:
             response = make_response(data.to_csv(sep = '\t', index = False))
             response.headers['Content-Type']        = 'text/plain'
@@ -91,6 +94,7 @@ def Stark_predict():
         if file.filename == '':
             return jsonify({'error': 'No selected file'})
         request_df = pd.read_csv(file, compression = None)
+        lines_for_check = None
             
     
     request_df.insert(request_df.columns.get_loc('E upper')+1, 'Gap to ion', 0)
@@ -109,7 +113,7 @@ def Stark_predict():
     if target == 'both':
         preds = predictor.predict_shift(request_df)
         preds = pd.DataFrame(preds, columns = ['w (A)', 'd (A)'])
-    print(f'Precition of both parameters for {request_df.shape[0]} entries takes {dt.datetime.now() - start_time}')
+    #print(f'Prediction of both parameters for {request_df.shape[0]} entries takes {dt.datetime.now() - start_time}')
         
     
     columns = ['Element', 'Charge', 'Wavelength', 'T', 'w (A)', 'd (A)']
@@ -125,8 +129,7 @@ def Stark_predict():
         axis = 1
         )
        
-    #_send_response(results)
-    return _send_response(results)
+    return _send_response(results, lines_for_check)
 
 
 @app.route('/cgi-bin/count_lines.rb', methods = ['POST'])
