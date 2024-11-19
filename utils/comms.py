@@ -11,18 +11,8 @@ with open('Stark_ML/credentials.json', 'r') as file:
     creds = json.load(file)
 
 
-def connect_to_DB(username,
-                  password,
-                  server = "laser365-1.chem.msu.ru",
-                  port=3306,
-                  database = "kurucz"):
-    
-    conn = mariadb.connect(
-            user=username,
-            password=password,
-            host=server,
-            port=port,
-            database=database)
+def connect_to_DB(creds):
+    conn = mariadb.connect(**creds)
     
     return conn
     
@@ -109,9 +99,9 @@ def _handle_query(spectra: str,
                     upper: float,
                     count_mode: bool):
         elements, ionizations = convert_species_request(spectra)
-
-        connection = connect_to_DB(username = creds['username'],
-                                  password = creds['password'])
+        
+        
+        connection = connect_to_DB(creds)
         cur = connection.cursor()
         
         if count_mode:
