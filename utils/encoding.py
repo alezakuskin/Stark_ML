@@ -427,8 +427,6 @@ def DB_to_StarkML(DB_df, data_template):
     pd.DataFrame
         csdcdsc
     '''
-    if DB_df is None:
-        raise UserDefinedError('There are no lines of the selected species in this spectral region')
         
     req_df = pd.DataFrame(columns = data_template.columns)
     for index, item in tqdm(DB_df.iterrows()):
