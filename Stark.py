@@ -78,11 +78,9 @@ def Stark_predict():
             response.headers['Content-Disposition'] = 'attachment; filename = "prediction.txt"'
             return response
     
-        
     
-            
-        
     if input_type == 'query':
+        
         try:
             request_df, lines_for_check = get_lines_from_DB(elements, lower, upper, save_for_manual_check = save_for_manual_check)
         except UserDefinedError as e:
@@ -96,6 +94,14 @@ def Stark_predict():
         request_df = pd.read_csv(file, compression = None)
         lines_for_check = None
             
+#    print(f'lines for check: {lines_for_check}')
+    if request_df.empty:
+        return jsonify({'error': 'No lines could be encoded properly. Please, check them manually', 'unparsed':lines_for_check.fillna(0).to_dict(orient = 'list')})
+    
+    
+    
+    
+    
     
     request_df.insert(request_df.columns.get_loc('E upper')+1, 'Gap to ion', 0)
     request_df['Gap to ion'] = gap_to_ion(request_df, 'E upper')
