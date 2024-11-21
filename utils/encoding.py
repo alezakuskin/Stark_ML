@@ -133,6 +133,8 @@ def encode_term_DB(term_str):
     '''
     Takes a single string from DataBase output, returns list [Multiplicity, Term, Parity]
     '''
+    if term_str == 0:
+        return [np.nan, np.nan, np.nan]
     if str(term_str) == 'None':
 #        print(f'The term {term_str} is not in LS coupling')
         return [np.nan, np.nan, np.nan]
@@ -148,6 +150,7 @@ def encode_term_DB(term_str):
     if str(term_str).endswith('e'):
 #        print(f'Term set equal to energy')
         return [np.nan, np.nan, np.nan]
+    
     
     #Parity
     if term_str.endswith('*'):
@@ -429,6 +432,7 @@ def DB_to_StarkML(DB_df, data_template):
     '''
         
     req_df = pd.DataFrame(columns = data_template.columns)
+    DB_df = DB_df.fillna(0)
     for index, item in tqdm(DB_df.iterrows()):
         req_df.loc[index, 'Element'] = item['el_name']
         
