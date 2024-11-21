@@ -82,14 +82,21 @@ def get_lines_from_DB(elements: str, lower: str(float), upper: str(float), count
             return lines_count
         else:
             DB_df = _handle_query(elements, lower, upper, count_mode)
+            if DB_df is None:
+                raise UserDefinedError('There are no lines of the selected species in this spectral region')
+            
             data_i = pd.read_excel(Stark_ML.__path__.__dict__['_path'][0] + '/Source_files/Stark_data.xlsx',
                                    sheet_name='Ions',
                                    usecols='A:BQ',
                                    nrows = 2
                                )
+            lines_with_None = DB_df[DB_df.isna().any(axis=1)]
+            DB_df           = DB_df[~DB_df.isna().any(axis=1)]
+            
             try:
                 request_df, lines_for_check = split_OK_check(DB_to_StarkML(DB_df, data_i), save_manual_check = save_for_manual_check, save_txts = False)
-                return request_df, lines_for_check
+                lines_with_None = DB_to_StarkML(lines_with_None, data_i)
+                return request_df, pd.concat([lines_for_check, lines_with_None], axis = 0, ignore_index = True)
             except UserDefinedError as e:
                 raise UserDefinedError(e)
                 
