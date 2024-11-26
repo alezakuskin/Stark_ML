@@ -41,7 +41,6 @@ def Stark_predict():
     save_for_manual_check = True
     
     
-
     def _add_temperature(data: pd.DataFrame,
                         T_mode: str):
         if T_mode == 'oneT':
@@ -96,8 +95,7 @@ def Stark_predict():
             
 #    print(f'lines for check: {lines_for_check}')
     if request_df.empty:
-        return jsonify({'error': 'No lines could be encoded properly. Please, check them manually', 'unparsed':lines_for_check.fillna(0).to_dict(orient = 'list')})
-    
+        return jsonify({'error': 'No lines could be encoded properly. Please, check them manually in the file below', 'unparsed':lines_for_check.fillna(0).to_dict(orient = 'list')})
     
     
     
@@ -106,6 +104,21 @@ def Stark_predict():
     request_df.insert(request_df.columns.get_loc('E upper')+1, 'Gap to ion', 0)
     request_df['Gap to ion'] = gap_to_ion(request_df, 'E upper')
     request_df = _add_temperature(request_df, T_mode)
+    
+#    If elements == all, drop high ionization degrees to unparsed
+#    If elements are specified with too high ionization degrees -> raise error
+    if request_df['Gap to ion'].isna().any():
+        if elements == '':
+            lines_for_check = pd.concat(
+                [lines_for_check,
+                request_df[request_df['Gap to ion'].isna() == True]],
+                axis = 0,
+                ignore_index = True
+                )
+            request_df = request_df[~request_df['Gap to ion'].isna() == True].reset_index(drop = True)
+        else:
+            return jsonify({'error': f'Cannot get predictions for element {request_df[request_df["Gap to ion"].isna() == True]["Element"][0]} with charge {request_df[request_df["Gap to ion"].isna() == True]["Charge"][0]}'})
+    
     
     request_df = request_df.sort_values(by = ['Wavelength', 'T'], ignore_index = True)
     
@@ -139,7 +152,9 @@ def Stark_predict():
 
 
 @app.route('/cgi-bin/count_lines.rb', methods = ['POST'])
+#@app.route('/cgi-bin/count_rows.rb', methods = ['POST'])
 def count_lines():
+#def count_rows():
     
     input_type = request.form.get('input', None)                          #query or parse                       <mandatory>
     elements   = request.form.get('elements', None)                       #str: NIST-like                       <optional> if input=='query'
@@ -158,16 +173,16 @@ def count_lines():
         if file.filename == '':
             return jsonify({'error': 'No selected file'})
         request_df = pd.read_csv(file, compression = None)
-        lines_count = request_df.shape[0]
+        rows_count = request_df.shape[0]
     elif input_type == 'query':
-        lines_count = get_lines_from_DB(elements, lower, upper, count_mode = True)
+        rows_count = get_lines_from_DB(elements, lower, upper, count_mode = True)
     
     
     if T_mode == 'oneT':
-        return jsonify({'count':f'{lines_count}'})
+        return jsonify({'count':f'{rows_count}'})
     elif T_mode == 'multiT':
         n_temperatures = (float(high_T) - float(low_T))//float(T_step) + 1
-        return jsonify({'count':f'{int(lines_count*n_temperatures)}'})
+        return jsonify({'count':f'{int(rows_count*n_temperatures)}'})
     
     
     
