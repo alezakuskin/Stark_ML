@@ -53,7 +53,14 @@ def convert_species_request(s):
         for part in parts:
             ionization.extend(parse_roman_part(part))
         return ionization
-
+    
+    #Handle query of all elements in a give spectral range
+    if s == '':
+        elements =    'All'
+        ionizations = 'All'
+        return elements, ionizations
+        
+    #Handle queries with specified elements
     elements = []
     ionizations = []
     chem_elems = s.split(';')
@@ -90,6 +97,7 @@ def get_lines_from_DB(elements: str, lower: str(float), upper: str(float), count
                                    usecols='A:BQ',
                                    nrows = 2
                                )
+            
             lines_with_None = DB_df[DB_df.isna().any(axis=1)]
             DB_df           = DB_df[~DB_df.isna().any(axis=1)]
             
@@ -122,6 +130,21 @@ def _handle_query(spectra: str,
 
 def _get_lines_from_DB(cursor, elements, ionizations, lower_wl, upper_wl):
     DB_df = None
+    if elements == 'All':
+        query = f'''
+            SELECT *
+            FROM mytestview2
+            WHERE airwl >= ?
+            AND airwl <= ?
+            '''
+        cursor.execute(query, (lower_wl, upper_wl))
+        column_names = [desc[0] for desc in cursor.description]
+        req_results = cursor.fetchall()
+        req_results = pd.DataFrame(req_results, columns=column_names)
+        if not req_results.empty:
+            DB_df = req_results
+        return DB_df
+        
     for i in range(len(elements)):
         el = elements[i]
         ion = ionizations[i]
@@ -156,6 +179,18 @@ def _get_lines_from_DB(cursor, elements, ionizations, lower_wl, upper_wl):
         
 def _get_count_lines_from_DB(cursor, elements, ionizations, lower_wl, upper_wl):
     count = 0
+    if elements == 'All':
+        query = f'''
+            SELECT COUNT(*)
+            FROM mytestview2
+            WHERE airwl >= ?
+            AND airwl <= ?
+            '''
+        cursor.execute(query, (lower_wl, upper_wl))
+        req_results = cursor.fetchall()[0][0]
+        count += req_results
+        return count
+        
     for i in range(len(elements)):
         el = elements[i]
         ion = ionizations[i]
@@ -178,6 +213,5 @@ def _get_count_lines_from_DB(cursor, elements, ionizations, lower_wl, upper_wl):
             '''
         cursor.execute(query, (lower_wl, upper_wl, el))
         req_results = cursor.fetchall()[0][0]
-        DB_df = req_results
         count += req_results
     return count
