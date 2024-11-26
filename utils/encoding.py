@@ -66,9 +66,14 @@ def gap_to_ion(data, column_name = None, file = Stark_ML.__path__.__dict__['_pat
     ion_Es = pd.read_csv(file, compression = None)
     gap = pd.Series()
     for index, val in data['Gap to ion'].items():
-        gap.at[index] = float((ion_Es.loc[ion_Es['Element'] == data.loc[index]['Element']][str(data.loc[index]['Charge'])]).iloc[0]) - data.loc[index][column_name]
-        if np.isnan(gap.at[index]):
-            print(f"Please find and insert to '/Source_files/E_ion.csv' ionization energy value for {data.loc[index]['Element']} with charge {data.loc[index]['Charge']}")
+        if data.loc[index]['Element'] not in ion_Es['Element'].to_list():
+            gap.at[index] = None
+        elif str(data.loc[index]['Charge']) not in ion_Es.columns:
+            gap.at[index] = None
+        else:
+            gap.at[index] = float((ion_Es.loc[ion_Es['Element'] == data.loc[index]['Element']][str(data.loc[index]['Charge'])]).iloc[0]) - data.loc[index][column_name]
+ #       if np.isnan(gap.at[index]):
+ #           print(f"Please find and insert to '/Source_files/E_ion.csv' ionization energy value for {data.loc[index]['Element']} with charge {data.loc[index]['Charge']}")
     return gap
     
     
@@ -166,6 +171,7 @@ def encode_term_DB(term_str):
     #Multiplicity and term 
     if len(term_str) == 1:
         multiplicity, term = np.nan, np.nan
+        return [multiplicity, term, parity]
     elif not term_str[0].isnumeric():
         term_str = term_str[1:]
     if term_str[1].isnumeric():
