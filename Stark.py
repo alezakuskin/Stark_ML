@@ -42,13 +42,17 @@ def Stark_predict():
     
     
     def _add_temperature(data: pd.DataFrame,
-                        T_mode: str):
+                        T_mode: str,
+                        only_T = None,
+                        low_T = None,
+                        high_T = None,
+                        T_step = None):
         if T_mode == 'oneT':
-            #only_T = float(only_T)
             dtypes = data.dtypes.to_dict()
             for index, row in data.iterrows():
                 data.at[index, 'T'] = float(only_T)
             data = data.astype(dtypes)
+            data['T'] = data['T'].astype(float)
             return data
 
         if T_mode == 'multiT':
@@ -63,6 +67,7 @@ def Stark_predict():
                     row['T'] = T
                     data = pd.concat([data, row.to_frame().T], ignore_index=True)
             data = data.astype(dtypes)
+            data['T'] = data['T'].astype(float)
             return data
         
         
@@ -99,12 +104,16 @@ def Stark_predict():
         return jsonify({'error': 'No lines could be encoded properly. Please, check them manually in the file below', 'unparsed':lines_for_check.fillna(0).to_dict(orient = 'list')})
     
     
+    #Check if request_df length exceeds 5000 rows limit
+    n_temperatures = 1 if T_mode == 'oneT' else abs(float(high_T) - float(low_T))//abs(float(T_step)) + 1
+    if request_df.shape[0] > 5000 or request_df.shape[0]*n_temperatures > 5000:
+        return jsonify({'error': '5000 rows at once is the limit, sorry'})
     
-    
-    
+        
     request_df.insert(request_df.columns.get_loc('E upper')+1, 'Gap to ion', 0)
     request_df['Gap to ion'] = gap_to_ion(request_df, 'E upper')
-    request_df = _add_temperature(request_df, T_mode)
+    request_df = _add_temperature(request_df, T_mode, only_T, low_T, high_T, T_step)
+    
     
 #    If elements == all, drop high ionization degrees to unparsed
 #    If elements are specified with too high ionization degrees -> raise error
@@ -123,7 +132,9 @@ def Stark_predict():
     
     request_df = request_df.sort_values(by = ['Wavelength', 'T'], ignore_index = True)
     
-    start_time = dt.datetime.now()
+    
+    
+    #start_time = dt.datetime.now()
     if target == 'widths':
         preds = predictor.predict_width(request_df)
         preds = pd.Series(preds, name = 'w (A)')
@@ -152,10 +163,10 @@ def Stark_predict():
     return _send_response(results, lines_for_check)
 
 
-@app.route('/cgi-bin/count_lines.rb', methods = ['POST'])
-#@app.route('/cgi-bin/count_rows.rb', methods = ['POST'])
-def count_lines():
-#def count_rows():
+#@app.route('/cgi-bin/count_lines.rb', methods = ['POST'])
+@app.route('/cgi-bin/count_rows.rb', methods = ['POST'])
+#def count_lines():
+def count_rows():
     
     input_type = request.form.get('input', None)                          #query or parse                       <mandatory>
     elements   = request.form.get('elements', None)                       #str: NIST-like                       <optional> if input=='query'
