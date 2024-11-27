@@ -94,7 +94,7 @@ def get_lines_from_DB(elements: str, lower: str(float), upper: str(float), count
             
             data_i = pd.read_excel(Stark_ML.__path__.__dict__['_path'][0] + '/Source_files/Stark_data.xlsx',
                                    sheet_name='Ions',
-                                   usecols='A:BQ',
+                                   usecols='A:BM',
                                    nrows = 2
                                )
             
