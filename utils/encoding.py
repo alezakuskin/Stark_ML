@@ -479,7 +479,7 @@ def DB_to_StarkML(DB_df, data_template):
 
 
 def split_OK_check(StarkML_df, save_txts = True, save_manual_check = True):
-    StarkML_df = StarkML_df.drop(columns = [col for col in list(StarkML_df.columns)[1 +list(StarkML_df.columns).index('d (A)'):]])
+    #StarkML_df = StarkML_df.drop(columns = [col for col in list(StarkML_df.columns)[1 +list(StarkML_df.columns).index('d (A)'):]])
     need_manual_check = pd.DataFrame(columns = StarkML_df.columns)
     
     c0 = StarkML_df['Multiplicity'].isna() == True
