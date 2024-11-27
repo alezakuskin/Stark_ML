@@ -53,11 +53,12 @@ def Stark_predict():
 
         if T_mode == 'multiT':
             dtypes = data.dtypes.to_dict()
-            Ts = np.arange(float(low_T), float(high_T) + 1, float(T_step))
+            low_T, high_T = min(float(low_T), float(high_T)), max(float(low_T), float(high_T))
+            Ts = np.arange(low_T, high_T + 1, abs(float(T_step)))
             for index, row in data.iterrows():
-                data.at[index, 'T'] = float(low_T)
+                data.at[index, 'T'] = low_T
                 for T in Ts:
-                    if T == float(low_T):
+                    if T == low_T:
                         continue
                     row['T'] = T
                     data = pd.concat([data, row.to_frame().T], ignore_index=True)
@@ -117,7 +118,7 @@ def Stark_predict():
                 )
             request_df = request_df[~request_df['Gap to ion'].isna() == True].reset_index(drop = True)
         else:
-            return jsonify({'error': f'Cannot get predictions for element {request_df[request_df["Gap to ion"].isna() == True]["Element"][0]} with charge {request_df[request_df["Gap to ion"].isna() == True]["Charge"][0]}'})
+            return jsonify({'error': f'Cannot get predictions for element {request_df[request_df["Gap to ion"].isna() == True].iloc[0]["Element"]} with charge {request_df[request_df["Gap to ion"].isna() == True].iloc[0]["Charge"]}'})
     
     
     request_df = request_df.sort_values(by = ['Wavelength', 'T'], ignore_index = True)
@@ -181,7 +182,7 @@ def count_lines():
     if T_mode == 'oneT':
         return jsonify({'count':f'{rows_count}'})
     elif T_mode == 'multiT':
-        n_temperatures = (float(high_T) - float(low_T))//float(T_step) + 1
+        n_temperatures = abs(float(high_T) - float(low_T))//abs(float(T_step)) + 1
         return jsonify({'count':f'{int(rows_count*n_temperatures)}'})
     
     
