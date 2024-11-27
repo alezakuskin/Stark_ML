@@ -55,15 +55,15 @@ class Predictor:
             A one-dimentional array with predicted values of broadening parameters in \u212B
         '''
         #Models without energy normalization
-        pred1 = self.model1.predict(data_for_prediction.drop(columns=['Element', 'Wavelength', 'Z number', 'w (A)', 'd (A)']))
-        pred4 = self.model4.predict(data_for_prediction.drop(columns=['Element', 'Wavelength', 'Z number', 'w (A)', 'd (A)']))
+        pred1 = self.model1.predict(data_for_prediction.drop(columns=['Element', 'Wavelength', 'Z number']))
+        pred4 = self.model4.predict(data_for_prediction.drop(columns=['Element', 'Wavelength', 'Z number']))
         #Models with energy normalization
         data_for_prediction['E lower']    = energy_to_fraction(data_for_prediction, 'E lower')
         data_for_prediction['E upper']    = energy_to_fraction(data_for_prediction, 'E upper')
         data_for_prediction['Gap to ion'] = energy_to_fraction(data_for_prediction, 'Gap to ion')
-        pred2 = self.model2.predict(data_for_prediction.drop(columns=['Element', 'Wavelength', 'Z number', 'w (A)', 'd (A)']))
-        pred3 = self.model3.predict(data_for_prediction.drop(columns=['Element', 'Wavelength', 'Z number', 'w (A)', 'd (A)']))
-        pred5 = self.model5.predict(self.scaler_width.transform(data_for_prediction.drop(columns=['Element', 'Wavelength', 'Z number', 'w (A)', 'd (A)'])))
+        pred2 = self.model2.predict(data_for_prediction.drop(columns=['Element', 'Wavelength', 'Z number']))
+        pred3 = self.model3.predict(data_for_prediction.drop(columns=['Element', 'Wavelength', 'Z number']))
+        pred5 = self.model5.predict(self.scaler_width.transform(data_for_prediction.drop(columns=['Element', 'Wavelength', 'Z number'])))
         preds = (pred1 + pred2 + pred3 + pred4 + pred5)/5
         preds = (np.exp(preds) - 1) * self.epsilon
         
