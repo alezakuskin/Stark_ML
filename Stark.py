@@ -83,11 +83,13 @@ def Stark_predict():
             response.headers['Content-Disposition'] = 'attachment; filename = "prediction.txt"'
             return response
     
+    n_temperatures = 1 if T_mode == 'oneT' else abs(float(high_T) - float(low_T))//abs(float(T_step)) + 1
     
+    #start_time = dt.datetime.now()
     if input_type == 'query':
         
         try:
-            request_df, lines_for_check = get_lines_from_DB(elements, lower, upper, save_for_manual_check = save_for_manual_check)
+            request_df, lines_for_check = get_lines_from_DB(elements, lower, upper, n_temperatures, save_for_manual_check = save_for_manual_check)
         except UserDefinedError as e:
             return jsonify({'error': str(e)})
     elif input_type == 'parse':
@@ -98,6 +100,9 @@ def Stark_predict():
             return jsonify({'error': 'No selected file'})
         request_df = pd.read_csv(file, compression = None)
         lines_for_check = None
+    #print(f'request and parsing takes: {dt.datetime.now() - start_time}')    
+    #print(f'request_df shape: {request_df.shape}')
+    #print(f'lines_for_check shape: {lines_for_check.shape}')
             
 #    print(f'lines for check: {lines_for_check}')
     if request_df.empty:

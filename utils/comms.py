@@ -83,11 +83,14 @@ def convert_species_request(s):
     return elements, ionizations
     
 
-def get_lines_from_DB(elements: str, lower: str(float), upper: str(float), count_mode = False, save_for_manual_check = False):
+def get_lines_from_DB(elements: str, lower: str(float), upper: str(float), n_temparatures = 1, count_mode = False, save_for_manual_check = False):
         if count_mode:
             lines_count = _handle_query(elements, lower, upper, count_mode)
             return lines_count
         else:
+            lines_count = _handle_query(elements, lower, upper, count_mode = True)
+            if lines_count*n_temparatures > 5000:
+                raise UserDefinedError('5000 rows at once is the limit, sorry')
             DB_df = _handle_query(elements, lower, upper, count_mode)
             if DB_df is None:
                 raise UserDefinedError('There are no lines of the selected species in this spectral region')
@@ -97,7 +100,6 @@ def get_lines_from_DB(elements: str, lower: str(float), upper: str(float), count
                                    usecols='A:BM',
                                    nrows = 2
                                )
-            
             lines_with_None = DB_df[DB_df.isna().any(axis=1)]
             DB_df           = DB_df[~DB_df.isna().any(axis=1)]
             
