@@ -99,7 +99,9 @@ def Stark_predict():
         if file.filename == '':
             return jsonify({'error': 'No selected file'})
         request_df = pd.read_csv(file, compression = None)
-        lines_for_check = None
+        request_df, lines_for_check = split_OK_check(request_df, save_txts = False, save_manual_check = True)
+        if lines_for_check.empty:
+            lines_for_check = None
     #print(f'request and parsing takes: {dt.datetime.now() - start_time}')    
     #print(f'request_df shape: {request_df.shape}')
     #print(f'lines_for_check shape: {lines_for_check.shape}')
