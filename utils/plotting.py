@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import Stark_ML
-from sklearn.metrics import r2_score, mean_squared_error
+from sklearn.metrics import r2_score, mean_squared_error, root_mean_squared_error
 from tqdm.notebook import tqdm
 
 
@@ -148,7 +148,7 @@ def plot_model_prediction(models, X_train, y_train, X_test, y_test, X_elem = Non
         return predictions, predictions_elem, fig, ax
     
     else:
-        return predictions, predictions_elem
+        return predictions, predictions_elem, None, None
     
 
 def train_ensemble(ensemble):
